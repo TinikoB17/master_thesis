@@ -1,0 +1,3 @@
+SyntaxError in file "/usr/local/app/Snakefile", line 68:
+invalid syntax. Perhaps you forgot a comma?:
+				prevalence = "new_figs/gene_expression_prevalence.svg"

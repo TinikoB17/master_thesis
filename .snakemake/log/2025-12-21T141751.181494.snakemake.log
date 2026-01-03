@@ -1,0 +1,50 @@
+Assuming unrestricted shared filesystem usage.
+host: 4488fe5b154d
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 2
+Rules claiming more threads will be scaled down.
+Job stats:
+job                   count
+------------------  -------
+all                       1
+produce_blood_data        1
+visualize_umap            1
+total                     3
+
+Select jobs to execute...
+Execute 1 jobs...
+[Sun Dec 21 14:17:51 2025]
+localrule produce_blood_data:
+    input: test_output/all_human_miRNA_rpmm_harmonized_cleaned.h5ad
+    output: test_output/all_human_miRNA_rpmm_harmonized_cleaned_blood.h5ad, test_output/all_human_miRNA_rpmm_harmonized_cleaned_blood_healthy.h5ad, test_output/blood_metadata_tissueatlas.csv, test_output/blood_metadata_tissueatlas_healthy.csv
+    jobid: 3
+    reason: Updated input files: test_output/all_human_miRNA_rpmm_harmonized_cleaned.h5ad
+    resources: tmpdir=/tmp
+[Sun Dec 21 14:17:53 2025]
+Finished jobid: 3 (Rule: produce_blood_data)
+1 of 3 steps (33%) done
+Select jobs to execute...
+Execute 1 jobs...
+[Sun Dec 21 14:17:53 2025]
+localrule visualize_umap:
+    input: test_output/all_human_miRNA_rpmm_harmonized_cleaned.h5ad, test_output/all_human_miRNA_rpmm_harmonized_cleaned_blood.h5ad, test_output/all_human_miRNA_rpmm_harmonized_cleaned_blood_healthy.h5ad
+    output: figures/umap_all_Tissue.svg, figures/umap_all_Project.svg, figures/umap_all_Sequencing_Method.svg, figures/umap_all_Age.svg, figures/umap_blood_Tissue.svg, figures/umap_blood_Project.svg, figures/umap_blood_Sequencing_Method.svg, figures/umap_blood_Age.svg, figures/umap_highlight_blood.svg
+    jobid: 1
+    reason: Input files updated by another job: test_output/all_human_miRNA_rpmm_harmonized_cleaned_blood_healthy.h5ad, test_output/all_human_miRNA_rpmm_harmonized_cleaned_blood.h5ad
+    resources: tmpdir=/tmp
+[Sun Dec 21 14:20:30 2025]
+Finished jobid: 1 (Rule: visualize_umap)
+2 of 3 steps (67%) done
+Select jobs to execute...
+Execute 1 jobs...
+[Sun Dec 21 14:20:30 2025]
+localrule all:
+    input: figures/umap_all_Tissue.svg, figures/umap_all_Project.svg, figures/umap_all_Sequencing_Method.svg, figures/umap_all_Age.svg, figures/umap_blood_Tissue.svg, figures/umap_blood_Project.svg, figures/umap_blood_Sequencing_Method.svg, figures/umap_blood_Age.svg, figures/umap_highlight_blood.svg, test_output/all_human_miRNA_rpmm_harmonized_cleaned.h5ad, test_output/all_human_miRNA_rpmm_harmonized_cleaned_blood.h5ad, test_output/all_human_miRNA_rpmm_harmonized_cleaned_blood_healthy.h5ad, test_output/blood_metadata_tissueatlas.csv, test_output/blood_metadata_tissueatlas_healthy.csv
+    jobid: 0
+    reason: Input files updated by another job: figures/umap_all_Age.svg, test_output/all_human_miRNA_rpmm_harmonized_cleaned_blood_healthy.h5ad, figures/umap_all_Tissue.svg, figures/umap_blood_Age.svg, figures/umap_highlight_blood.svg, test_output/blood_metadata_tissueatlas.csv, figures/umap_blood_Sequencing_Method.svg, figures/umap_blood_Project.svg, test_output/blood_metadata_tissueatlas_healthy.csv, figures/umap_all_Sequencing_Method.svg, figures/umap_blood_Tissue.svg, test_output/all_human_miRNA_rpmm_harmonized_cleaned_blood.h5ad, figures/umap_all_Project.svg
+    resources: tmpdir=/tmp
+[Sun Dec 21 14:20:30 2025]
+Finished jobid: 0 (Rule: all)
+3 of 3 steps (100%) done
+Complete log(s): /usr/local/app/.snakemake/log/2025-12-21T141751.181494.snakemake.log

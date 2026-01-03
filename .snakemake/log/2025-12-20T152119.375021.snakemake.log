@@ -1,0 +1,41 @@
+Assuming unrestricted shared filesystem usage.
+host: aacb6323df15
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job                      count
+---------------------  -------
+preprocess_input_data        1
+total                        1
+
+Select jobs to execute...
+Execute 1 jobs...
+[Sat Dec 20 15:21:19 2025]
+localrule preprocess_input_data:
+    input: original_input/all_human_miRNA_rpmm_harmonized_meta_data.h5ad, original_input/human_combined.tsv
+    output: test_output/all_human_miRNA_rpmm_harmonized_cleaned.h5ad
+    jobid: 0
+    reason: Missing output files: test_output/all_human_miRNA_rpmm_harmonized_cleaned.h5ad
+    resources: tmpdir=/tmp
+RuleException:
+CalledProcessError in file "/usr/local/app/Snakefile", line 9:
+Command 'set -euo pipefail;  /usr/local/bin/python3.12 /usr/local/app/.snakemake/scripts/tmp7go2oxz5.process_input_data.py' returned non-zero exit status 1.
+[Sat Dec 20 15:21:21 2025]
+Error in rule preprocess_input_data:
+    message: None
+    jobid: 0
+    input: original_input/all_human_miRNA_rpmm_harmonized_meta_data.h5ad, original_input/human_combined.tsv
+    output: test_output/all_human_miRNA_rpmm_harmonized_cleaned.h5ad
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look below for error messages
+[Sat Dec 20 15:21:21 2025]
+Error in rule preprocess_input_data:
+    message: None
+    jobid: 0
+    input: original_input/all_human_miRNA_rpmm_harmonized_meta_data.h5ad, original_input/human_combined.tsv
+    output: test_output/all_human_miRNA_rpmm_harmonized_cleaned.h5ad
+Complete log(s): /usr/local/app/.snakemake/log/2025-12-20T152119.375021.snakemake.log
+WorkflowError:
+At least one job did not complete successfully.

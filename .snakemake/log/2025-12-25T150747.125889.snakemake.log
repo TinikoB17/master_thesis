@@ -1,0 +1,44 @@
+Assuming unrestricted shared filesystem usage.
+host: 54cba3a34e10
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job                          count
+-------------------------  -------
+all                              1
+produce_model_input              1
+visualize_rpmm_thresholds        1
+total                            3
+
+Select jobs to execute...
+Execute 1 jobs...
+[Thu Dec 25 15:07:47 2025]
+localrule produce_model_input:
+    input: test_output/all_human_miRNA_rpmm_harmonized_cleaned_blood_healthy.h5ad
+    output: model_input_data/blood_healthy_age_scaled.csv
+    jobid: 6
+    reason: Updated input files: test_output/all_human_miRNA_rpmm_harmonized_cleaned_blood_healthy.h5ad
+    resources: tmpdir=/tmp
+Select jobs to execute...
+RuleException:
+CalledProcessError in file "/usr/local/app/Snakefile", line 89:
+Command 'set -euo pipefail;  /usr/local/bin/python3.12 /usr/local/app/.snakemake/scripts/tmp0kg58_cv.model_preprocessing.py' returned non-zero exit status 1.
+[Thu Dec 25 15:07:49 2025]
+Error in rule produce_model_input:
+    message: None
+    jobid: 6
+    input: test_output/all_human_miRNA_rpmm_harmonized_cleaned_blood_healthy.h5ad
+    output: model_input_data/blood_healthy_age_scaled.csv
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look below for error messages
+[Thu Dec 25 15:07:49 2025]
+Error in rule produce_model_input:
+    message: None
+    jobid: 6
+    input: test_output/all_human_miRNA_rpmm_harmonized_cleaned_blood_healthy.h5ad
+    output: model_input_data/blood_healthy_age_scaled.csv
+Complete log(s): /usr/local/app/.snakemake/log/2025-12-25T150747.125889.snakemake.log
+WorkflowError:
+At least one job did not complete successfully.

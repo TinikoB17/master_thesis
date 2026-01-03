@@ -1,0 +1,42 @@
+Assuming unrestricted shared filesystem usage.
+host: 54cba3a34e10
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job                          count
+-------------------------  -------
+all                              1
+visualize_rpmm_thresholds        1
+total                            2
+
+Select jobs to execute...
+Execute 1 jobs...
+[Thu Dec 25 15:15:41 2025]
+localrule visualize_rpmm_thresholds:
+    input: test_output/all_human_miRNA_rpmm_harmonized_cleaned_blood_healthy.h5ad
+    output: new_figs/gene_expression_prevalence.svg, test_output/pass_threshold_mirnas.csv
+    jobid: 5
+    reason: Missing output files: new_figs/gene_expression_prevalence.svg, test_output/pass_threshold_mirnas.csv
+    resources: tmpdir=/tmp
+RuleException:
+CalledProcessError in file "/usr/local/app/Snakefile", line 71:
+Command 'set -euo pipefail;  /usr/local/bin/python3.12 /usr/local/app/.snakemake/scripts/tmpx1efmeln.rpmm_thresholds.py' returned non-zero exit status 1.
+[Thu Dec 25 15:15:43 2025]
+Error in rule visualize_rpmm_thresholds:
+    message: None
+    jobid: 5
+    input: test_output/all_human_miRNA_rpmm_harmonized_cleaned_blood_healthy.h5ad
+    output: new_figs/gene_expression_prevalence.svg, test_output/pass_threshold_mirnas.csv
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look below for error messages
+[Thu Dec 25 15:15:43 2025]
+Error in rule visualize_rpmm_thresholds:
+    message: None
+    jobid: 5
+    input: test_output/all_human_miRNA_rpmm_harmonized_cleaned_blood_healthy.h5ad
+    output: new_figs/gene_expression_prevalence.svg, test_output/pass_threshold_mirnas.csv
+Complete log(s): /usr/local/app/.snakemake/log/2025-12-25T151541.246902.snakemake.log
+WorkflowError:
+At least one job did not complete successfully.

@@ -1,0 +1,8 @@
+import scanpy as sc
+import visualize_input_data
+
+blood_healthy = snakemake.input.blood_h5ad_healthy
+saveas = snakemake.output.prevalence
+annotated_data_blood_healthy = sc.read_h5ad(blood_healthy) 
+list_saveas = snakemake.output.threshold_miRNAs
+visualize_input_data.plot_count_of_miRNAs_at_threshold(annotated_data_blood_healthy, saveas, list_saveas)

@@ -1,0 +1,40 @@
+Assuming unrestricted shared filesystem usage.
+host: 54cba3a34e10
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job                          count
+-------------------------  -------
+all                              1
+visualize_rpmm_thresholds        1
+total                            2
+
+Select jobs to execute...
+Execute 1 jobs...
+[Thu Dec 25 15:16:22 2025]
+localrule visualize_rpmm_thresholds:
+    input: test_output/all_human_miRNA_rpmm_harmonized_cleaned_blood_healthy.h5ad
+    output: new_figs/gene_expression_prevalence.svg, test_output/pass_threshold_mirnas.csv
+    jobid: 5
+    reason: Missing output files: new_figs/gene_expression_prevalence.svg, test_output/pass_threshold_mirnas.csv
+    resources: tmpdir=/tmp
+Waiting at most 5 seconds for missing files:
+test_output/pass_threshold_mirnas.csv (missing locally)
+MissingOutputException in rule visualize_rpmm_thresholds in file "/usr/local/app/Snakefile", line 64:
+Job 5  completed successfully, but some output files are missing. Missing files after 5 seconds. This might be due to filesystem latency. If that is the case, consider to increase the wait time with --latency-wait:
+test_output/pass_threshold_mirnas.csv (missing locally, parent dir contents: blood_metadata_tissueatlas_healthy.csv, all_human_miRNA_rpmm_harmonized_cleaned.h5ad, blood_metadata_tissueatlas.csv, all_human_miRNA_rpmm_harmonized_cleaned_blood.h5ad, all_human_miRNA_rpmm_harmonized_cleaned_blood_healthy.h5ad)
+Removing output files of failed job visualize_rpmm_thresholds since they might be corrupted:
+new_figs/gene_expression_prevalence.svg
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look below for error messages
+[Thu Dec 25 15:16:29 2025]
+Error in rule visualize_rpmm_thresholds:
+    message: None
+    jobid: 5
+    input: test_output/all_human_miRNA_rpmm_harmonized_cleaned_blood_healthy.h5ad
+    output: new_figs/gene_expression_prevalence.svg, test_output/pass_threshold_mirnas.csv
+Complete log(s): /usr/local/app/.snakemake/log/2025-12-25T151622.730437.snakemake.log
+WorkflowError:
+At least one job did not complete successfully.

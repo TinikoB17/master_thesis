@@ -1,0 +1,37 @@
+Assuming unrestricted shared filesystem usage.
+host: aacb6323df15
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job                      count
+---------------------  -------
+preprocess_input_data        1
+total                        1
+
+Select jobs to execute...
+Execute 1 jobs...
+[Sat Dec 20 14:55:03 2025]
+localrule preprocess_input_data:
+    input: src/process_input_data.py
+    output: test_output/blabla.csv
+    jobid: 0
+    reason: Missing output files: test_output/blabla.csv
+    resources: tmpdir=/tmp
+Waiting at most 5 seconds for missing files:
+test_output/blabla.csv (missing locally)
+MissingOutputException in rule preprocess_input_data in file "/usr/local/app/Snakefile", line 2:
+Job 0 completed successfully, but some output files are missing. Missing files after 5 seconds. This might be due to filesystem latency. If that is the case, consider to increase the wait time with --latency-wait:
+test_output/blabla.csv (missing locally, parent dir contents: )
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look below for error messages
+[Sat Dec 20 14:55:08 2025]
+Error in rule preprocess_input_data:
+    message: None
+    jobid: 0
+    input: src/process_input_data.py
+    output: test_output/blabla.csv
+Complete log(s): /usr/local/app/.snakemake/log/2025-12-20T145503.749959.snakemake.log
+WorkflowError:
+At least one job did not complete successfully.

@@ -1,0 +1,50 @@
+Assuming unrestricted shared filesystem usage.
+host: 54cba3a34e10
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job                          count
+-------------------------  -------
+all                              1
+produce_model_input              1
+visualize_rpmm_thresholds        1
+total                            3
+
+Select jobs to execute...
+Execute 1 jobs...
+[Thu Dec 25 15:08:00 2025]
+localrule produce_model_input:
+    input: test_output/all_human_miRNA_rpmm_harmonized_cleaned_blood_healthy.h5ad
+    output: model_input_data/blood_healthy_age_scaled.csv
+    jobid: 6
+    reason: Missing output files: model_input_data/blood_healthy_age_scaled.csv
+    resources: tmpdir=/tmp
+Select jobs to execute...
+[Thu Dec 25 15:08:07 2025]
+Finished jobid: 6 (Rule: produce_model_input)
+1 of 3 steps (33%) done
+Execute 1 jobs...
+[Thu Dec 25 15:08:07 2025]
+localrule visualize_rpmm_thresholds:
+    input: test_output/all_human_miRNA_rpmm_harmonized_cleaned_blood_healthy.h5ad
+    output: new_figs/gene_expression_prevalence.svg
+    jobid: 5
+    reason: Missing output files: new_figs/gene_expression_prevalence.svg
+    resources: tmpdir=/tmp
+[Thu Dec 25 15:08:08 2025]
+Finished jobid: 5 (Rule: visualize_rpmm_thresholds)
+2 of 3 steps (67%) done
+Select jobs to execute...
+Execute 1 jobs...
+[Thu Dec 25 15:08:08 2025]
+localrule all:
+    input: figures/umap_all_Tissue.svg, figures/umap_all_Project.svg, figures/umap_all_Sequencing_Method.svg, figures/umap_all_Age.svg, figures/umap_blood_Tissue.svg, figures/umap_blood_Project.svg, figures/umap_blood_Sequencing_Method.svg, figures/umap_blood_Age.svg, figures/umap_highlight_blood.svg, figures/All Diseases_Blood_age_histogram.svg, figures/All_All_age_histogram.svg, figures/All_Blood_age_histogram.svg, figures/Healthy_Blood_age_histogram.svg, test_output/all_human_miRNA_rpmm_harmonized_cleaned.h5ad, test_output/all_human_miRNA_rpmm_harmonized_cleaned_blood.h5ad, test_output/all_human_miRNA_rpmm_harmonized_cleaned_blood_healthy.h5ad, test_output/blood_metadata_tissueatlas.csv, test_output/blood_metadata_tissueatlas_healthy.csv, new_figs/gene_expression_prevalence.svg, model_input_data/blood_healthy_age_scaled.csv
+    jobid: 0
+    reason: Input files updated by another job: new_figs/gene_expression_prevalence.svg, model_input_data/blood_healthy_age_scaled.csv
+    resources: tmpdir=/tmp
+[Thu Dec 25 15:08:08 2025]
+Finished jobid: 0 (Rule: all)
+3 of 3 steps (100%) done
+Complete log(s): /usr/local/app/.snakemake/log/2025-12-25T150800.463413.snakemake.log

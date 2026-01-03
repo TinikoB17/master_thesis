@@ -2,3 +2,7 @@ figures/
 filtered_input/
 original_input/
 Dockerfile
+jupyters/
+figures/
+new_figs/
+test_output/

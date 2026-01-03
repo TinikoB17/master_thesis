@@ -1,0 +1,37 @@
+Assuming unrestricted shared filesystem usage.
+host: 54cba3a34e10
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job                    count
+-------------------  -------
+all                        1
+produce_model_input        1
+total                      2
+
+Select jobs to execute...
+Execute 1 jobs...
+[Fri Dec 26 15:21:43 2025]
+localrule produce_model_input:
+    input: test_output/all_human_miRNA_rpmm_harmonized_cleaned_blood_healthy.h5ad, test_output/pass_threshold_mirnas.csv
+    output: model_input_data/blood_healthy_age_scaled.csv
+    jobid: 6
+    reason: Code has changed since last execution
+    resources: tmpdir=/tmp
+[Fri Dec 26 15:21:51 2025]
+Finished jobid: 6 (Rule: produce_model_input)
+1 of 2 steps (50%) done
+Select jobs to execute...
+Execute 1 jobs...
+[Fri Dec 26 15:21:51 2025]
+localrule all:
+    input: figures/umap_all_Tissue.svg, figures/umap_all_Project.svg, figures/umap_all_Sequencing_Method.svg, figures/umap_all_Age.svg, figures/umap_blood_Tissue.svg, figures/umap_blood_Project.svg, figures/umap_blood_Sequencing_Method.svg, figures/umap_blood_Age.svg, figures/umap_highlight_blood.svg, figures/All Diseases_Blood_age_histogram.svg, figures/All_All_age_histogram.svg, figures/All_Blood_age_histogram.svg, figures/Healthy_Blood_age_histogram.svg, test_output/all_human_miRNA_rpmm_harmonized_cleaned.h5ad, test_output/all_human_miRNA_rpmm_harmonized_cleaned_blood.h5ad, test_output/all_human_miRNA_rpmm_harmonized_cleaned_blood_healthy.h5ad, test_output/blood_metadata_tissueatlas.csv, test_output/blood_metadata_tissueatlas_healthy.csv, new_figs/gene_expression_prevalence.svg, model_input_data/blood_healthy_age_scaled.csv, test_output/pass_threshold_mirnas.csv
+    jobid: 0
+    reason: Input files updated by another job: model_input_data/blood_healthy_age_scaled.csv
+    resources: tmpdir=/tmp
+[Fri Dec 26 15:21:51 2025]
+Finished jobid: 0 (Rule: all)
+2 of 2 steps (100%) done
+Complete log(s): /usr/local/app/.snakemake/log/2025-12-26T152143.410136.snakemake.log

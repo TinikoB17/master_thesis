@@ -1,0 +1,41 @@
+Assuming unrestricted shared filesystem usage.
+host: 4488fe5b154d
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job                    count
+-------------------  -------
+clean_original_h5ad        1
+total                      1
+
+Select jobs to execute...
+Execute 1 jobs...
+[Sun Dec 21 12:51:42 2025]
+localrule clean_original_h5ad:
+    input: original_input/all_human_miRNA_rpmm_harmonized_meta_data.h5ad, original_input/human_combined.tsv
+    output: test_output/all_human_miRNA_rpmm_harmonized_cleaned.h5ad
+    jobid: 0
+    reason: Code has changed since last execution
+    resources: tmpdir=/tmp
+RuleException:
+CalledProcessError in file "/usr/local/app/Snakefile", line 9:
+Command 'set -euo pipefail;  /usr/local/bin/python3.12 /usr/local/app/.snakemake/scripts/tmph08_z7_j.clean_original_h5ad.py' returned non-zero exit status 1.
+[Sun Dec 21 12:51:45 2025]
+Error in rule clean_original_h5ad:
+    message: None
+    jobid: 0
+    input: original_input/all_human_miRNA_rpmm_harmonized_meta_data.h5ad, original_input/human_combined.tsv
+    output: test_output/all_human_miRNA_rpmm_harmonized_cleaned.h5ad
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look below for error messages
+[Sun Dec 21 12:51:45 2025]
+Error in rule clean_original_h5ad:
+    message: None
+    jobid: 0
+    input: original_input/all_human_miRNA_rpmm_harmonized_meta_data.h5ad, original_input/human_combined.tsv
+    output: test_output/all_human_miRNA_rpmm_harmonized_cleaned.h5ad
+Complete log(s): /usr/local/app/.snakemake/log/2025-12-21T125142.832226.snakemake.log
+WorkflowError:
+At least one job did not complete successfully.

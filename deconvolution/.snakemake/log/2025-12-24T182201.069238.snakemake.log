@@ -1,0 +1,63 @@
+Assuming unrestricted shared filesystem usage.
+host: f64cb67c892f
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 2
+Rules claiming more threads will be scaled down.
+Job stats:
+job                         count
+------------------------  -------
+all                             1
+calculate_avg_expression        1
+calculate_tsi                   1
+filter_rpmm                     1
+total                           4
+
+Select jobs to execute...
+Execute 1 jobs...
+[Wed Dec 24 18:22:01 2025]
+localrule filter_rpmm:
+    input: dataframes/std_quantification_rpmm_norm_mirna.csv, dataframes/mirblood_metadata.csv
+    output: dataframes/filtered_mirblood_rpmm.csv
+    jobid: 1
+    reason: Missing output files: dataframes/filtered_mirblood_rpmm.csv
+    resources: tmpdir=/tmp
+[Wed Dec 24 18:22:02 2025]
+Finished jobid: 1 (Rule: filter_rpmm)
+1 of 4 steps (25%) done
+Select jobs to execute...
+Execute 1 jobs...
+[Wed Dec 24 18:22:02 2025]
+localrule calculate_avg_expression:
+    input: dataframes/filtered_mirblood_rpmm.csv, dataframes/mirblood_metadata.csv
+    output: dataframes/mirblood_avg_expression_per_cell_type_all_samples_rpmm_filtered.csv
+    jobid: 2
+    reason: Input files updated by another job: dataframes/filtered_mirblood_rpmm.csv; Code has changed since last execution
+    resources: tmpdir=/tmp
+[Wed Dec 24 18:22:02 2025]
+Finished jobid: 2 (Rule: calculate_avg_expression)
+2 of 4 steps (50%) done
+Select jobs to execute...
+Execute 1 jobs...
+[Wed Dec 24 18:22:02 2025]
+localrule calculate_tsi:
+    input: dataframes/mirblood_avg_expression_per_cell_type_all_samples_rpmm_filtered.csv
+    output: dataframes/mirblood_rpmm_with_tsi.csv
+    jobid: 3
+    reason: Input files updated by another job: dataframes/mirblood_avg_expression_per_cell_type_all_samples_rpmm_filtered.csv
+    resources: tmpdir=/tmp
+[Wed Dec 24 18:22:03 2025]
+Finished jobid: 3 (Rule: calculate_tsi)
+3 of 4 steps (75%) done
+Select jobs to execute...
+Execute 1 jobs...
+[Wed Dec 24 18:22:03 2025]
+localrule all:
+    input: dataframes/filtered_mirblood_rpmm.csv, dataframes/mirblood_avg_expression_per_cell_type_all_samples_rpmm_filtered.csv, dataframes/mirblood_rpmm_with_tsi.csv
+    jobid: 0
+    reason: Input files updated by another job: dataframes/mirblood_rpmm_with_tsi.csv, dataframes/mirblood_avg_expression_per_cell_type_all_samples_rpmm_filtered.csv, dataframes/filtered_mirblood_rpmm.csv
+    resources: tmpdir=/tmp
+[Wed Dec 24 18:22:03 2025]
+Finished jobid: 0 (Rule: all)
+4 of 4 steps (100%) done
+Complete log(s): /usr/local/app/deconvolution/.snakemake/log/2025-12-24T182201.069238.snakemake.log
