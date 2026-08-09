@@ -6,3 +6,9 @@ jupyters/
 figures/
 new_figs/
 test_output/
+deconvolution/
+.ipynb_checkpoints/
+.github/
+.snakemake/
+*.png
+*.svg

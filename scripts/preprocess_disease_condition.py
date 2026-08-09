@@ -13,7 +13,6 @@ def alter_disease_condition(annotated_human_miRNA: sc.AnnData):
     annotated_human_miRNA.obs.loc[annotated_human_miRNA.obs["Disease_Condition"].str.contains(" carcinoma"), "Disease_Condition"] = "carcinoma"
     annotated_human_miRNA.obs.loc[annotated_human_miRNA.obs["Disease_Condition"].str.contains("cancer"), "Disease_Condition"] = "Cancer"
     annotated_human_miRNA.obs.loc[annotated_human_miRNA.obs["Disease_Condition"].isin(["myeloma", "Multiple myeloma"]), "Disease_Condition"] = "carcinoma"
-    annotated_human_miRNA.obs.loc[annotated_human_miRNA.obs["Disease_Condition"].str.contains("SDAI"), "Disease_Condition"] = "SDAI"
     annotated_human_miRNA.obs.loc[annotated_human_miRNA.obs["Disease_Condition"] == "benign", "Disease_Condition"] = "tumor"
     annotated_human_miRNA.obs.loc[annotated_human_miRNA.obs["Disease_Condition"] == "control", "Disease_Condition"] = "Healthy"
     annotated_human_miRNA.obs.loc[annotated_human_miRNA.obs["Disease_Condition"] == "C", "Disease_Condition"] = "Healthy"

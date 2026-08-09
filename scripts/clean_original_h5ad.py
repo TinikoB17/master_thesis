@@ -25,5 +25,6 @@ annotated_miRNA = annotated_miRNA[~annotated_miRNA.obs.isna().any(axis=1)].copy(
 
 annotated_miRNA = alter_disease_condition(annotated_miRNA)
 
+annotated_miRNA = annotated_miRNA[annotated_miRNA.obs["Sex"] != "u"]
 annotated_miRNA.write_h5ad(output_cleaned)
 
