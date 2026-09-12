@@ -31,7 +31,8 @@ def plot_highlight_blood(annotated_object: sc.AnnData):
 def plot_age_histograms(annotated_object: sc.AnnData,
                         condition: str = None,
                         tissue: str = None,
-                        train_test: str = None):
+                        train_test: str = None,
+                        project: str = None):
 
     obs = annotated_object.obs
 
@@ -61,6 +62,30 @@ def plot_age_histograms(annotated_object: sc.AnnData,
     ax.set_ylabel("Number of samples", fontsize=12)
 
     n_samples = len(obs)
+
+    if project:
+        title = (
+            f"Age Distribution\n in "
+            f"Project {project}"
+        )
+        ax.set_title(title, fontsize=14)
+
+        sns.despine()
+
+        fig.tight_layout()
+        if train_test:
+            fig.savefig(
+            f"figures/{train_test}_age_histogram.svg",
+            bbox_inches="tight"
+            )
+        else:
+            fig.savefig(
+                f"figures/{project}_age.svg",
+                bbox_inches="tight"
+            )
+
+        plt.close(fig)
+        return
 
     if train_test:
         title = (
@@ -96,6 +121,47 @@ def plot_age_histograms(annotated_object: sc.AnnData,
 
     plt.close(fig)
 
+def plot_sex_distribution(annotated_object: sc.AnnData, 
+                        title: str = None, 
+                        saveas: str = None):
+    obs = annotated_object.obs
+
+    sns.set_theme(
+        style="whitegrid",
+        context="paper",
+        font_scale=1.3
+    )
+
+    fig, ax = plt.subplots(figsize=(7, 5))
+
+    sns.countplot(data=obs,
+        x="Sex",
+        hue="Sex",
+        ax=ax,
+        legend=False,
+        dodge=False,
+        palette={"m": "mediumspringgreen", "f": "salmon"})
+
+    for container in ax.containers:
+        ax.bar_label(
+            container,
+            fmt='%d',
+            label_type='edge',
+            padding=3
+        )
+
+    ax.set_xlabel("Sex", fontsize=12)
+    ax.set_ylabel("Number of samples", fontsize=12)
+    ax.set_title(title, fontsize=14)
+    
+
+    sns.despine()
+    fig.savefig(
+        f"{saveas}",
+        bbox_inches="tight"
+    )
+
+    plt.close(fig)
 
 def plot_count_of_miRNAs_at_threshold(annotated_object: sc.AnnData, saveas: str, mirna_list_saveas: str):
     expressions = annotated_object.to_df()

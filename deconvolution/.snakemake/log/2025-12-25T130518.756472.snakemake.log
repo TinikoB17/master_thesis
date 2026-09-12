@@ -1,4 +1,0 @@
-SyntaxError in file "/usr/local/app/deconvolution/Snakefile", line 7:
-invalid syntax. Perhaps you forgot a comma?:
-        mirna_plots = expand("plots/{mirna}_boxplot.svg", mirna=MIRNAS)
-

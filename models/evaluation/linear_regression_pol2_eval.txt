@@ -1,0 +1,4 @@
+Best Params: {'feature_selection__k': 5, 'model': LinearRegression()}, Best CV MAE: 8.594723664603215 
+Test R2: 0.03882369209919401, 
+ Test MAE: 8.460518653811086, 
+ Test RMSE: 10.722253874781742

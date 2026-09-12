@@ -29,7 +29,7 @@ df = exp.merge(
 
 df[expression_cols] = np.log2(df[expression_cols] + 1)
 
-output_dir = "gene_plots"
+output_dir = "mirna_plots"
 os.makedirs(output_dir, exist_ok=True)
 
 for mir in expression_cols:

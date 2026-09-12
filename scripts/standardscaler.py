@@ -1,6 +1,7 @@
 import pandas as pd
 import scanpy as sc
 from scipy.stats import zscore
+from sklearn.preprocessing import StandardScaler
 
 
 eligible_mirnas = snakemake.input.threshold_miRNAs
@@ -21,25 +22,21 @@ def preprocess_data(annotated_object: sc.AnnData, columns_to_add: list, train_st
     
     obs_dataframe = sc.get.obs_df(annotated_object, keys=columns_to_add)
     expression_with_added_cols = mirna_expression.join(obs_dataframe, how="left")
-    cols_to_apply_zscore = [col for col in expression_with_added_cols if col not in columns_to_add and col != "Project"]
+    # cols_to_apply_zscore = [col for col in expression_with_added_cols if col not in columns_to_add and col != "Project"]
 
+    # scaler = StandardScaler()
 
-    grouped = expression_with_added_cols.groupby("Project")
-    print(grouped)
-    expression_with_added_cols[cols_to_apply_zscore] = (
-    grouped[cols_to_apply_zscore]
-    .transform(lambda x: zscore(x, ddof=1))
-    .fillna(0))
+    # X = expression_with_added_cols[cols_to_apply_zscore]
+    # y = expression_with_added_cols["Age"]
 
-
-    eligible_miRNAs.extend(cols_to_add)
-
-    mirna_expression = expression_with_added_cols[eligible_miRNAs]
-
-    expression_with_added_cols = expression_with_added_cols.drop(columns=["Project"])
-    mirna_expression = mirna_expression.drop(columns=["Project"])
-
-    return expression_with_added_cols, mirna_expression
+    # X_filtered = X[eligible_miRNAs]
+    
+    # exp_all_scaled = scaler.fit_transform(X, y)
+    # exp_scaled = scaler.fit_transform(X_filtered, y)
+    print("EXP ADDED COLS")
+    eligible_miRNAs.extend(["Age", "Sex"])
+    print(expression_with_added_cols[eligible_miRNAs])
+    return expression_with_added_cols, expression_with_added_cols[eligible_miRNAs]
 
     # return expression_with_added_cols
 
@@ -50,13 +47,14 @@ ann_obj = sc.read_h5ad(h5ad_to_process)
 ann_test = sc.read_h5ad(test_h5ad)
 
 exp_all_train, exp_train = preprocess_data(ann_obj, cols_to_add)
-
+print(exp_all_train)
 exp_all_test, exp_test = preprocess_data(ann_test, cols_to_add)
 
-print(exp_train)
 
 exp_train.to_csv(model_inp, sep='\t', index_label="Sample")
 exp_test.to_csv(model_test, sep='\t', index_label="Sample")
 
+print(exp_train)
+print(exp_test)
 exp_all_train.to_csv(model_inp_all_mirnas, sep='\t', index_label="Sample")
 exp_all_test.to_csv(model_test_all_mirnas, sep='\t', index_label="Sample")

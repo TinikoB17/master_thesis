@@ -14,3 +14,9 @@ visualize_input_data.plot_age_histograms(annotated_data_blood_healthy, condition
 visualize_input_data.plot_age_histograms(annotated_data_blood_disease, condition="All Diseases", tissue="Blood")
 visualize_input_data.plot_age_histograms(train_age, condition="All Diseases", tissue="Blood", train_test="train")
 visualize_input_data.plot_age_histograms(test_age, condition="All Diseases", tissue="Blood", train_test="test")
+
+projects = annotated_data_blood_healthy.obs["Project"].tolist()
+
+for project in projects:
+    ann = annotated_data_blood_healthy[annotated_data_blood_healthy.obs["Project"] == project]
+    visualize_input_data.plot_age_histograms(ann, project=project)

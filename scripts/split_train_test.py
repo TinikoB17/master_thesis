@@ -19,7 +19,7 @@ print(to_process.obs)
 to_process.obs["age_bin"] = pd.cut(to_process.obs["Age"], bins=2)
 to_process.obs["strata"] = (to_process.obs["Project"].astype(str) + "_" + to_process.obs["age_bin"].astype(str)) 
 
-train_id, test_id = train_test_split(to_process.obs_names,
+train_id, test_id = train_test_split(to_process.obs_names.to_numpy(),
                                      test_size=0.1,
                                      random_state=42,
                                      stratify=to_process.obs["strata"])

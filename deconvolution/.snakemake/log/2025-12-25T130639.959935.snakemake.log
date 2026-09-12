@@ -1,3 +1,0 @@
-FileNotFoundError in file "/usr/local/app/deconvolution/Snakefile", line 1:
-[Errno 2] No such file or directory: 'mirna_list.txt'
-  File "/usr/local/app/deconvolution/Snakefile", line 1, in <module>

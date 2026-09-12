@@ -14,12 +14,12 @@ from sklearn.preprocessing import PowerTransformer, PolynomialFeatures, OneHotEn
 data = pd.read_csv("model_input_data/blood_healthy_age_scaled_train.csv", sep='\t').set_index("Sample")
 
 print(data)
-X = data.drop(columns=["Age", "Project"])
-y = data.drop(columns=["Project"])["Age"]
+X = data.drop(columns=["Age"])
+y = data["Age"]
 
 print(len(X.columns))
 
-cat_columns = ["Sequencing_Method", "Sex"]
+cat_columns = ["Sex"]
 
 
 num_cols = [col for col in X.columns if col not in cat_columns and col]
@@ -67,19 +67,17 @@ pipeline.fit(X, y)
 
 
 
-
-
 #Test data
 test = pd.read_csv("model_input_data/blood_healthy_age_scaled_test.csv", sep='\t').set_index("Sample")
-X_test = test.drop(columns=["Age", "Project"])
-y_test = test.drop(columns=["Project"])["Age"]
+X_test = test.drop(columns=["Age"])
+y_test = test.drop["Age"]
 print(test)
 y_pred = pipeline.predict(X_test)
 
-print(pipeline.score(X_test, y_test))
-print(mean_absolute_error(y_test, y_pred))
-print(root_mean_squared_error(y_test, y_pred))
-print(r2_score(y_test, y_pred))
+print(f'Test score {pipeline.score(X_test, y_test)}')
+print(f'Test MAE {mean_absolute_error(y_test, y_pred)}')
+print(f'Test RMSE {root_mean_squared_error(y_test, y_pred)}')
+print(f'Test R2 {r2_score(y_test, y_pred)}')
 # Metrics
 # print(data)
 

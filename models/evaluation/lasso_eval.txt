@@ -1,0 +1,4 @@
+Best Params: {'feature_selection__k': 'all', 'model__alpha': np.float64(0.16237767391887217)}, Best CV MAE: 8.184135969143137 
+Test R2: 0.20300315726743434, 
+ Test MAE: 7.728537100628063, 
+ Test RMSE: 9.763664726083709

@@ -11,7 +11,7 @@ cols_to_add = ["Age", "Sequencing_Method", "Project", "Sex"]
 
 def preprocess_data(annotated_object: sc.AnnData, columns_to_add: list) -> pd.DataFrame:
     annotated_object = annotated_object[annotated_object.obs["Disease_Condition"] != "Healthy"]
-    annotated_object = annotated_object[annotated_object.obs["Project"] == "PPMI"]
+    # annotated_object = annotated_object[annotated_object.obs["Project"] == "PPMI"]
     mirna_expression = annotated_object.to_df()
     column_sums = mirna_expression.sum(axis=0, numeric_only=True)
     drop_cols = column_sums[column_sums == 0].index
