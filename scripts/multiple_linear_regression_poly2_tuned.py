@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import joblib
 import matplotlib.pyplot as plt
 from sklearn.compose import ColumnTransformer
 from sklearn.feature_selection import SelectKBest, f_regression
@@ -14,7 +15,7 @@ DATA_PATH = snakemake.input.model_input
 TEST_DATA_PATH = snakemake.input.model_test
 
 EVALUATION = snakemake.output.linear_regression_pol2_eval
-
+MODEL = snakemake.output.pol2_model
 
 def load_training_data():
     data = pd.read_csv(DATA_PATH, sep="\t").set_index("Sample")
@@ -92,6 +93,9 @@ def main():
     best_model = search.best_estimator_
     best_params = f"Best Params: {search.best_params_}, Best CV MAE: {-search.best_score_} \n"
 
+    joblib.dump(best_model, MODEL)
+    print(f"Model saved at {MODEL}")
+
     with open(EVALUATION, "a") as file:
         file.write(best_params)
 
@@ -107,7 +111,7 @@ def main():
     plt.ylabel("Predicted Age")
     plt.title("Polynomial Regression (degree=2) - CV predictions")
     plt.tight_layout()
-    plt.savefig("linear_regression_poly2_tuned_cv_prediction.svg")
+    plt.savefig("figures/linear_regression_poly2_tuned_cv_prediction.svg")
     plt.close()
 
     test_data = pd.read_csv(TEST_DATA_PATH, sep="\t").set_index("Sample")

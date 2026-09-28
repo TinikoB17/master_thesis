@@ -4,20 +4,18 @@ import matplotlib.pyplot as plt
 import joblib
 from sklearn.compose import ColumnTransformer
 from sklearn.feature_selection import SelectKBest, f_regression
-from sklearn.linear_model import LinearRegression, Ridge
+from sklearn.linear_model import Lasso
 from sklearn.metrics import mean_absolute_error, r2_score, root_mean_squared_error, median_absolute_error
 from sklearn.model_selection import GridSearchCV, KFold, cross_val_predict
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, PowerTransformer
 from sklearn.utils.class_weight import compute_class_weight
 
-
 DATA_PATH = snakemake.input.model_input
 TEST_DATA_PATH = snakemake.input.model_test
 
-EVALUATION = snakemake.output.linear_regression_eval
-MODEL = snakemake.output.linear_reg_model
-
+EVALUATION = snakemake.output.lasso_all_eval
+MODEL = snakemake.output.lasso_all_model
 
 def load_training_data():
     data = pd.read_csv(DATA_PATH, sep="\t").set_index("Sample")
@@ -30,41 +28,45 @@ def build_preprocessor(X: pd.DataFrame):
     categorical_columns = ["Sex"]
     numeric_columns = [col for col in X.columns if col not in categorical_columns]
     skew_values = X[numeric_columns].skew()
+    skewed_columns = skew_values[skew_values > 1].index.tolist()
+    symmetric_columns = [col for col in numeric_columns if col not in skewed_columns]
 
-    skewed_cols = skew_values[skew_values > 1].index.tolist()
-    symmetric_cols = [col for col in numeric_columns if col not in skewed_cols]
-
-    pt = PowerTransformer(method="yeo-johnson", standardize=False)
     preprocessor = ColumnTransformer(
         transformers=[
-            ("power_transformer", pt, skewed_cols),
+            ("power_transformer", PowerTransformer(method="yeo-johnson", standardize=False), skewed_columns),
             ("cat", OneHotEncoder(handle_unknown="ignore", sparse_output=False), categorical_columns),
-            ("num", "passthrough", symmetric_cols),
+            ("num_passthrough", "passthrough", symmetric_columns),
         ],
         remainder="drop",
     )
+
     return preprocessor
 
 
 def main():
     X, y = load_training_data()
 
-    age_bins = pd.cut(y, bins=6, labels=False)
+
+    age_bins = pd.cut(y, bins=5, labels=False)
     class_weights = compute_class_weight(class_weight="balanced", classes=np.unique(age_bins), y=age_bins)
     sample_weights = np.array([class_weights[b] for b in age_bins])
+
+
     preprocessor = build_preprocessor(X)
 
     pipeline = Pipeline(
         steps=[
             ("preprocess", preprocessor),
-            ("feature_selection", SelectKBest(score_func=f_regression, k=500)),
-            ("model", LinearRegression()),
+            ("feature_selection", SelectKBest(score_func=f_regression)),
+            ("model", Lasso(random_state=42, max_iter=100000, tol=1e-4, selection="cyclic")),
         ]
     )
 
+    # A narrower alpha range is much more stable for this high-dimensional miRNA problem.
+    # Very small alphas create poorly conditioned optimization and can trigger convergence failures.
     param_grid = {
-        "feature_selection__k": [50, 100, "all"],
-        "model": [LinearRegression()],
+        "model__alpha": np.logspace(-1, 1, 20),
+        "feature_selection__k": ["all"],
     }
 
     cv = KFold(n_splits=5, shuffle=True, random_state=42)
@@ -78,19 +80,16 @@ def main():
         verbose=1,
     )
 
-    # search.fit(X, y, model__sample_weight=sample_weights)
     search.fit(X, y)
-
+    # search.fit(X, y, model__sample_weight=sample_weights)
     best_model = search.best_estimator_
+    best_params = f"Best Params: {search.best_params_}, Best CV MAE: {-search.best_score_} \n"
+
     joblib.dump(best_model, MODEL)
     print(f"Model saved at {MODEL}")
 
-    best_params = f"Best Params: {search.best_params_}, Best CV MAE: {-search.best_score_} \n"
-
     with open(EVALUATION, "a") as file:
         file.write(best_params)
-
-    
     print("Best params:", search.best_params_)
     print("Best CV MAE:", -search.best_score_)
 
@@ -100,9 +99,9 @@ def main():
     plt.plot([y.min(), y.max()], [y.min(), y.max()], linestyle="--", color="darkorange")
     plt.xlabel("Actual Age")
     plt.ylabel("Predicted Age")
-    plt.title("Linear Regression / Ridge - CV predictions")
+    plt.title("Lasso - CV predictions")
     plt.tight_layout()
-    plt.savefig("figures/linear_regression_tuned_cv_prediction.svg")
+    plt.savefig("lasso_tuned_cv_prediction.svg")
     plt.close()
 
     test_data = pd.read_csv(TEST_DATA_PATH, sep="\t").set_index("Sample")
@@ -131,9 +130,13 @@ def main():
                           .reset_index())
 
     print(perf_by_group)
+
+
+
     with open(EVALUATION, "a") as file:
         file.write(
-            f"Test R2: {r2_score(y_test, y_pred)}, Test MAE: {mean_absolute_error(y_test, y_pred)}, Test RMSE: {root_mean_squared_error(y_test, y_pred)}")
+            f"Test R2: {r2_score(y_test, y_pred)}, \n Test MAE: {mean_absolute_error(y_test, y_pred)}, \n Test RMSE: {root_mean_squared_error(y_test, y_pred)}")
+
 
 if __name__ == "__main__":
     main()

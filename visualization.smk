@@ -41,8 +41,8 @@ rule create_sex_barplots:
     input: 
         blood_h5ad_healthy = "test_output/all_human_miRNA_rpmm_harmonized_cleaned_blood_healthy.h5ad"
     output:
-        # sex_barplots = "figures/sex_distribution/healthy_blood_sex_dist.svg",
-        projects = gather_projects("test_output/all_human_miRNA_rpmm_harmonized_cleaned_blood_healthy.h5ad")
+        sex_barplots = "figures/sex_distribution/healthy_blood_sex_dist.svg",
+        # projects = gather_projects("test_output/all_human_miRNA_rpmm_harmonized_cleaned_blood_healthy.h5ad")
 
     script:
         "scripts/create_sex_distributions.py"

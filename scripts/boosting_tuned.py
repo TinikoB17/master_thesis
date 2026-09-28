@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import joblib
 from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import HistGradientBoostingRegressor
 from sklearn.metrics import mean_absolute_error, r2_score, root_mean_squared_error, median_absolute_error
@@ -15,6 +16,7 @@ DATA_PATH = snakemake.input.model_input
 TEST_DATA_PATH = snakemake.input.model_test
 
 EVALUATION = snakemake.output.hgb_eval
+MODEL = snakemake.output.hgb_model
 
 def load_training_data():
     data = pd.read_csv(DATA_PATH, sep="\t").set_index("Sample")
@@ -97,6 +99,9 @@ def main():
 
     best_params = f"Best Params: {search.best_params_}, Best CV MAE: {-search.best_score_} \n"
 
+    joblib.dump(best_model, MODEL)
+    print(f"Model saved at {MODEL}")
+
     with open(EVALUATION, "a") as file:
         file.write(best_params)
 
@@ -111,7 +116,7 @@ def main():
     plt.ylabel("Predicted Age")
     plt.title("HistGradientBoostingRegressor - CV predictions")
     plt.tight_layout()
-    plt.savefig("boosting_tuned_cv_prediction.svg")
+    plt.savefig("figures/boosting_tuned_cv_prediction.svg")
     plt.close()
 
     test_data = pd.read_csv(TEST_DATA_PATH, sep="\t").set_index("Sample")

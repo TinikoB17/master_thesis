@@ -15,8 +15,8 @@ from sklearn.utils.class_weight import compute_class_weight
 DATA_PATH = snakemake.input.model_input
 TEST_DATA_PATH = snakemake.input.model_test
 
-EVALUATION = snakemake.output.linear_regression_eval
-MODEL = snakemake.output.linear_reg_model
+EVALUATION = snakemake.output.linear_regression_eval_all
+MODEL = snakemake.output.linear_reg_model_all
 
 
 def load_training_data():
@@ -63,7 +63,7 @@ def main():
     )
 
     param_grid = {
-        "feature_selection__k": [50, 100, "all"],
+        "feature_selection__k": [50, 100, 120, 150, 200, 250, "all"],
         "model": [LinearRegression()],
     }
 

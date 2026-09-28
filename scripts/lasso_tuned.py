@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import joblib
 from sklearn.compose import ColumnTransformer
 from sklearn.feature_selection import SelectKBest, f_regression
 from sklearn.linear_model import Lasso
@@ -14,6 +15,7 @@ DATA_PATH = snakemake.input.model_input
 TEST_DATA_PATH = snakemake.input.model_test
 
 EVALUATION = snakemake.output.lasso_eval
+MODEL = snakemake.output.lasso_model
 
 def load_training_data():
     data = pd.read_csv(DATA_PATH, sep="\t").set_index("Sample")
@@ -82,6 +84,9 @@ def main():
     # search.fit(X, y, model__sample_weight=sample_weights)
     best_model = search.best_estimator_
     best_params = f"Best Params: {search.best_params_}, Best CV MAE: {-search.best_score_} \n"
+
+    joblib.dump(best_model, MODEL)
+    print(f"Model saved at {MODEL}")
 
     with open(EVALUATION, "a") as file:
         file.write(best_params)

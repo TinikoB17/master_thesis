@@ -38,21 +38,25 @@ rule all:
         model_test = "model_input_data/blood_healthy_age_scaled_test.csv",
         train_age = "figures/train_age_histogram.svg",
         test_age = "figures/test_age_histogram.svg",
-        # sex_barplots = "figures/sex_distribution/healthy_blood_sex_dist.svg",
+        sex_barplots = "figures/sex_distribution/healthy_blood_sex_dist.svg",
         projects = gather_projects("test_output/all_human_miRNA_rpmm_harmonized_cleaned_blood_healthy.h5ad"),
         linear_regression_eval = "models/evaluation/linear_regression_eval.txt",
         linear_regression_pol2_eval = "models/evaluation/linear_regression_pol2_eval.txt",
         lasso_eval = "models/evaluation/lasso_eval.txt",
         hgb_eval = "models/evaluation/hgb_eval.txt",
         model_inp_all = "model_input_data/blood_healthy_age_all_train.csv",
-        model_test_all = "model_input_data/blood_healthy_age_all_test.csv"
-
+        model_test_all = "model_input_data/blood_healthy_age_all_test.csv",
+        linear_regression_eval_all = "models/evaluation/linear_regression_eval_all.txt",
+        linear_reg_model_all = "models/linear_regression_all.pkl",
+        lasso_all_eval = "models/evaluation/lasso_all_eval.txt",
+        lasso_all_model = "models/lasso_all.pkl"
 
 
 rule clean_original_h5ad:
     input:
         original_h5ad = "original_input/all_human_miRNA_rpmm_harmonized_meta_data.h5ad",
-        metadata = "original_input/human_combined.tsv"
+        metadata = "original_input/human_combined.tsv",
+        high_confidence_mirnas = "test_output/high_confidence_mirnas.txt"
     output: 
         cleaned_data = "test_output/all_human_miRNA_rpmm_harmonized_cleaned.h5ad"
     script:
