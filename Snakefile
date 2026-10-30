@@ -34,6 +34,10 @@ rule all:
         # test_inp = "models/test_disease.csv",
         changing_mirnas = "test_output/changing_mirnas.csv",
         linearly_changing_mirnas = "test_output/linearly_changing_mirnas.csv",
+        variance_partitioning = "test_output/variance_partitioning.csv",
+        variance_partitioning_50_70 = "test_output/variance_partitioning_age50-70.csv",
+        lasso_lmm_eval = "models/evaluation/lasso_lmm_eval_train_stats.txt",
+        workflow = "figures/workflow.svg",
         age_filtered = "test_output/rpmm_age_filtered_blood_healthy.h5ad",
         model_test = "model_input_data/blood_healthy_age_scaled_test.csv",
         train_age = "figures/train_age_histogram.svg",
@@ -49,7 +53,16 @@ rule all:
         linear_regression_eval_all = "models/evaluation/linear_regression_eval_all.txt",
         linear_reg_model_all = "models/linear_regression_all.pkl",
         lasso_all_eval = "models/evaluation/lasso_all_eval.txt",
-        lasso_all_model = "models/lasso_all.pkl"
+        lasso_all_model = "models/lasso_all.pkl",
+        # models evaluated on test data z-scored with training-set stats
+        linear_regression_eval_ts = "models/evaluation/linear_regression_eval_train_stats.txt",
+        linear_regression_eval_all_ts = "models/evaluation/linear_regression_eval_all_train_stats.txt",
+        linear_regression_pol2_eval_ts = "models/evaluation/linear_regression_pol2_eval_train_stats.txt",
+        lasso_eval_ts = "models/evaluation/lasso_eval_train_stats.txt",
+        lasso_all_eval_ts = "models/evaluation/lasso_all_eval_train_stats.txt",
+        hgb_eval_ts = "models/evaluation/hgb_eval_train_stats.txt",
+        # repeated nested CV on all samples
+        repeated_cv = expand("models/repeated_cv/{model}_summary.txt", model=["linear_regression", "linear_regression_all", "linear_regression_pol2", "lasso", "lasso_all", "hgb"])
 
 
 rule clean_original_h5ad:
@@ -119,6 +132,31 @@ rule calculate_corr:
         "scripts/calculate_correlations.py"
 
 
+rule variance_partitioning:
+    input:
+        rpmm_filtered_train = "test_output/blood_healthy_rpmm_filt_train.h5ad"
+    output:
+        variance = "test_output/variance_partitioning.csv",
+        lmm_plot = "figures/lmm.svg"
+    threads: 8
+    script:
+        "scripts/variance_partitioning.py"
+
+# Same LMM restricted to an age window, e.g. test_output/variance_partitioning_age50-70.csv
+rule variance_partitioning_age:
+    input:
+        rpmm_filtered_train = "test_output/blood_healthy_rpmm_filt_train.h5ad"
+    output:
+        variance = "test_output/variance_partitioning_age{min_age}-{max_age}.csv",
+        lmm_plot = "figures/lmm_age{min_age}-{max_age}.svg"
+    wildcard_constraints:
+        min_age = r"\d+",
+        max_age = r"\d+"
+    threads: 8
+    script:
+        "scripts/variance_partitioning.py"
+
+
 rule produce_model_input:
     input:
         blood_h5ad_healthy = "test_output/blood_healthy_rpmm_filt_train.h5ad",
@@ -134,6 +172,46 @@ rule produce_model_input:
     script:
         "scripts/model_preprocessing.py"
 
+# Same as produce_model_input, but test set is z-scored with per-project stats from the training set
+rule produce_model_input_train_stats:
+    input:
+        blood_h5ad_healthy = "test_output/blood_healthy_rpmm_filt_train.h5ad",
+        threshold_miRNAs = "test_output/changing_mirnas.csv",
+        test_h5ad = "test_output/blood_healthy_rpmm_filt_test.h5ad"
+    output:
+        model_input = "model_input_data/blood_healthy_age_scaled_train_train_stats.csv",
+        model_test = "model_input_data/blood_healthy_age_scaled_test_train_stats.csv",
+        model_inp_all = "model_input_data/blood_healthy_age_all_train_train_stats.csv",
+        model_test_all = "model_input_data/blood_healthy_age_all_test_train_stats.csv"
+    script:
+        "scripts/model_preprocessing_train_stats.py"
+
+# Feature set from the LMM: miRNAs with a significant age effect (BH-adjusted p < 0.05)
+rule select_lmm_age_mirnas:
+    input:
+        variance = "test_output/variance_partitioning.csv"
+    output:
+        lmm_age_mirnas = "test_output/lmm_age_mirnas.csv"
+    params:
+        max_padj = 0.05
+    run:
+        import pandas as pd
+        variance = pd.read_csv(input.variance, index_col="miRNA")
+        significant = variance.index[variance["Age_padj"] < params.max_padj]
+        pd.Series(significant, name="miRNA").to_csv(output.lmm_age_mirnas, index=False)
+
+# Same as produce_model_input_train_stats, with the LMM age miRNAs instead of the correlation filter
+rule produce_model_input_lmm:
+    input:
+        blood_h5ad_healthy = "test_output/blood_healthy_rpmm_filt_train.h5ad",
+        threshold_miRNAs = "test_output/lmm_age_mirnas.csv",
+        test_h5ad = "test_output/blood_healthy_rpmm_filt_test.h5ad"
+    output:
+        model_input = "model_input_data/blood_healthy_age_lmm_train_train_stats.csv",
+        model_test = "model_input_data/blood_healthy_age_lmm_test_train_stats.csv"
+    script:
+        "scripts/model_preprocessing_train_stats.py"
+
 # rule find_top_diseases:
 #     input:
 #         blood_metadata = "test_output/blood_metadata_tissueatlas.csv"
@@ -143,3 +221,4 @@ rule produce_model_input:
 #         "scripts/top_diseases.py"
 include: "visualization.smk"
 include: "run_models.smk"
+include: "repeated_cv.smk"

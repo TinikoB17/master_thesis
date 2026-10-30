@@ -11,6 +11,8 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, PowerTransformer
 from sklearn.utils.class_weight import compute_class_weight
 
+from metrics import balanced_mae, balanced_mae_scorer
+
 
 DATA_PATH = snakemake.input.model_input
 TEST_DATA_PATH = snakemake.input.model_test
@@ -71,7 +73,7 @@ def main():
     search = GridSearchCV(
         estimator=pipeline,
         param_grid=param_grid,
-        scoring="neg_mean_absolute_error",
+        scoring=balanced_mae_scorer,
         cv=cv,
         n_jobs=-1,
         refit=True,
@@ -85,14 +87,14 @@ def main():
     joblib.dump(best_model, MODEL)
     print(f"Model saved at {MODEL}")
 
-    best_params = f"Best Params: {search.best_params_}, Best CV MAE: {-search.best_score_} \n"
+    best_params = f"Best Params: {search.best_params_}, Best CV balanced MAE: {-search.best_score_} \n"
 
     with open(EVALUATION, "a") as file:
         file.write(best_params)
 
     
     print("Best params:", search.best_params_)
-    print("Best CV MAE:", -search.best_score_)
+    print("Best CV balanced MAE:", -search.best_score_)
 
     y_pred_cv = cross_val_predict(best_model, X, y, cv=cv)
     plt.figure(figsize=(6, 6))
@@ -112,6 +114,7 @@ def main():
     y_pred = best_model.predict(X_test)
     print("Test R2:", r2_score(y_test, y_pred))
     print("Test MAE:", mean_absolute_error(y_test, y_pred))
+    print("Test balanced MAE:", balanced_mae(y_test, y_pred))
     print("Test RMSE:", root_mean_squared_error(y_test, y_pred))
     print("Test MedianAE:", median_absolute_error(y_test, y_pred))
 
@@ -133,7 +136,7 @@ def main():
     print(perf_by_group)
     with open(EVALUATION, "a") as file:
         file.write(
-            f"Test R2: {r2_score(y_test, y_pred)}, Test MAE: {mean_absolute_error(y_test, y_pred)}, Test RMSE: {root_mean_squared_error(y_test, y_pred)}")
+            f"Test R2: {r2_score(y_test, y_pred)}, Test MAE: {mean_absolute_error(y_test, y_pred)}, Test RMSE: {root_mean_squared_error(y_test, y_pred)}, \n Test balanced MAE: {balanced_mae(y_test, y_pred)}")
 
 if __name__ == "__main__":
     main()

@@ -1,1 +1,4 @@
-Best Params: {'feature_selection__k': 'all', 'model__l2_regularization': 0.1, 'model__learning_rate': 0.05, 'model__loss': 'absolute_error', 'model__max_depth': 8, 'model__max_iter': 1000, 'model__max_leaf_nodes': 31, 'model__min_samples_leaf': 2}, Best CV MAE: 7.7139851539339235 
+Best Params: {'feature_selection__k': 'all', 'model__l2_regularization': 0.1, 'model__learning_rate': 0.05, 'model__loss': 'absolute_error', 'model__max_depth': 8, 'model__max_iter': 1000, 'model__max_leaf_nodes': 31, 'model__min_samples_leaf': 2}, Best CV MAE: 7.5666511566827115 
+Test R2: 0.17169048379269758, 
+ Test MAE: 7.91349832673093, 
+ Test RMSE: 9.95361601454072

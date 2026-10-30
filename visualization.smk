@@ -46,3 +46,25 @@ rule create_sex_barplots:
 
     script:
         "scripts/create_sex_distributions.py"
+
+rule workflow_diagram:
+    input:
+        raw = "original_input/all_human_miRNA_rpmm_harmonized_meta_data.h5ad",
+        cleaned = "test_output/all_human_miRNA_rpmm_harmonized_cleaned.h5ad",
+        blood = "test_output/all_human_miRNA_rpmm_harmonized_cleaned_blood.h5ad",
+        blood_healthy = "test_output/all_human_miRNA_rpmm_harmonized_cleaned_blood_healthy.h5ad",
+        age_filtered = "test_output/age_filtered_blood_healthy.h5ad",
+        train = "test_output/blood_healthy_train.h5ad",
+        test = "test_output/blood_healthy_test.h5ad",
+        prevalence_filtered = "test_output/blood_healthy_rpmm_filt_train.h5ad",
+        high_confidence_mirnas = "test_output/high_confidence_mirnas.txt",
+        changing_mirnas = "test_output/changing_mirnas.csv",
+        cv_summaries = expand("models/repeated_cv/{model}_summary.txt", model=["linear_regression", "linear_regression_all", "linear_regression_pol2", "lasso", "lasso_all", "hgb"]),
+        holdout_evals = ["models/evaluation/linear_regression_eval_train_stats.txt", "models/evaluation/linear_regression_eval_all_train_stats.txt", "models/evaluation/linear_regression_pol2_eval_train_stats.txt", "models/evaluation/lasso_eval_train_stats.txt", "models/evaluation/lasso_all_eval_train_stats.txt", "models/evaluation/hgb_eval_train_stats.txt"]
+    params:
+        cv_dir = "models/repeated_cv",
+        eval_dir = "models/evaluation"
+    output:
+        workflow = "figures/workflow.svg"
+    script:
+        "scripts/workflow_diagram.py"

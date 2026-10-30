@@ -1,0 +1,26 @@
+Model: lasso
+Repeated nested CV: 5 outer folds x 10 repeats, 5-fold inner CV
+Samples: 944
+
+Across all outer folds (mean +- sd, [2.5%, 97.5%]):
+  MAE: 8.457 +- 0.514  [7.579, 9.343]
+  RMSE: 10.724 +- 0.595  [9.563, 11.676]
+  R2: 0.038 +- 0.042  [-0.078, 0.091]
+  MedianAE: 6.811 +- 0.563  [5.731, 8.032]
+  baseline_MAE: 8.663 +- 0.578  [7.479, 9.662]
+
+Pooled out-of-fold predictions per repeat (mean +- sd across repeats, [min, max]):
+  MAE: 8.457 +- 0.057  [8.362, 8.548]
+  R2: 0.043 +- 0.011  [0.023, 0.061]
+
+Selected hyperparameters (count over outer folds):
+   12x {'feature_selection__k': 'all', 'model__alpha': np.float64(0.1)}
+    8x {'feature_selection__k': 'all', 'model__alpha': np.float64(0.20691380811147897)}
+    7x {'feature_selection__k': 'all', 'model__alpha': np.float64(0.12742749857031338)}
+    7x {'feature_selection__k': 'all', 'model__alpha': np.float64(0.16237767391887217)}
+    5x {'feature_selection__k': 'all', 'model__alpha': np.float64(0.33598182862837817)}
+    4x {'feature_selection__k': 'all', 'model__alpha': np.float64(0.26366508987303583)}
+    2x {'feature_selection__k': 'all', 'model__alpha': np.float64(0.42813323987193935)}
+    2x {'feature_selection__k': 'all', 'model__alpha': np.float64(0.6951927961775606)}
+    2x {'feature_selection__k': 'all', 'model__alpha': np.float64(0.5455594781168519)}
+    1x {'feature_selection__k': 'all', 'model__alpha': np.float64(1.1288378916846888)}

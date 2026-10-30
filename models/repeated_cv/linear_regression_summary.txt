@@ -1,0 +1,18 @@
+Model: linear_regression
+Repeated nested CV: 5 outer folds x 10 repeats, 5-fold inner CV
+Samples: 944
+
+Across all outer folds (mean +- sd, [2.5%, 97.5%]):
+  MAE: 8.487 +- 0.504  [7.646, 9.317]
+  RMSE: 10.776 +- 0.601  [9.618, 11.914]
+  R2: 0.028 +- 0.056  [-0.108, 0.099]
+  MedianAE: 6.865 +- 0.508  [5.811, 7.777]
+  baseline_MAE: 8.663 +- 0.578  [7.479, 9.662]
+
+Pooled out-of-fold predictions per repeat (mean +- sd across repeats, [min, max]):
+  MAE: 8.487 +- 0.099  [8.376, 8.663]
+  R2: 0.034 +- 0.019  [0.009, 0.056]
+
+Selected hyperparameters (count over outer folds):
+   49x {'feature_selection__k': 50}
+    1x {'feature_selection__k': 70}
