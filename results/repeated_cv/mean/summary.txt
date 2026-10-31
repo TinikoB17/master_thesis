@@ -1,0 +1,23 @@
+Model: mean
+Repeated nested CV: 5 outer folds x 10 repeats, 5-fold inner CV (tuned on balanced MAE)
+Samples: 968, miRNAs in cohort: 1036
+
+Across outer folds (mean +- sd, [2.5%, 97.5%]):
+  MAE: 8.949 +- 0.189  [8.666, 9.292]
+  balanced_MAE: 13.031 +- 0.244  [12.566, 13.395]
+  RMSE: 11.404 +- 0.203  [11.092, 11.772]
+  R2: -0.001 +- 0.001  [-0.002, -0.000]
+  MedianAE: 7.136 +- 0.408  [6.405, 7.754]
+  bias: 0.000 +- 0.267  [-0.484, 0.553]
+  pearson_r: -0.000 +- 0.000  [nan, nan]
+  baseline_MAE: 8.949 +- 0.189  [8.666, 9.292]
+  n_mirnas_used: 0.000 +- 0.000  [0.000, 0.000]
+
+Pooled out-of-fold predictions per repeat (mean +- sd across repeats):
+  MAE: 8.949 +- 0.000
+  balanced_MAE: 13.029 +- 0.000
+  R2: -0.000 +- 0.000
+  pearson_r: -0.017 +- 0.007
+
+Selected hyperparameters (count over outer folds):
+   50x {}

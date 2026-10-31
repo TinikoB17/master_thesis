@@ -1,0 +1,8 @@
+Model: mlp
+Repeated-CV MAE: 6.954 +- 0.458
+Trained on: 968 samples
+Best hyperparameters (inner 5-fold CV): {'model__regressor__alpha': 1.0, 'model__regressor__hidden_layer_sizes': (32,), 'select__k': 'all'}
+Inner-CV balanced MAE: 8.779
+miRNAs given to the model: 352
+Feature ranking: permutation importance on the training data (optimistic)
+In-sample MAE (optimistic, for reference only): 2.335

@@ -1,0 +1,9 @@
+step	samples	projects	miRNAs
+all samples	46997	3	2656
+Tissue == blood	13487	2	1060
+Biotype == tissue	12629	2	1060
+in metadata with age	9335	28	1060
+healthy	984	8	1060
+age 30-85	968	7	1060
+sex m/f	968	7	1060
+drop miRNAs that are zero in every sample	968	7	1036

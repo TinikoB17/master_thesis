@@ -1,0 +1,28 @@
+Model: elastic_net
+Repeated nested CV: 5 outer folds x 10 repeats, 5-fold inner CV (tuned on balanced MAE)
+Samples: 968, miRNAs in cohort: 1036
+
+Across outer folds (mean +- sd, [2.5%, 97.5%]):
+  MAE: 7.725 +- 0.391  [6.981, 8.415]
+  balanced_MAE: 9.954 +- 0.681  [8.762, 11.043]
+  RMSE: 10.279 +- 0.730  [8.869, 11.622]
+  R2: 0.183 +- 0.119  [-0.048, 0.372]
+  MedianAE: 6.016 +- 0.306  [5.353, 6.571]
+  bias: 0.030 +- 0.683  [-1.230, 1.079]
+  pearson_r: 0.504 +- 0.061  [0.393, 0.632]
+  baseline_MAE: 8.949 +- 0.189  [8.666, 9.292]
+  n_mirnas_used: 352.400 +- 0.904  [351.000, 354.000]
+
+Pooled out-of-fold predictions per repeat (mean +- sd across repeats):
+  MAE: 7.725 +- 0.091
+  balanced_MAE: 9.950 +- 0.077
+  R2: 0.184 +- 0.033
+  pearson_r: 0.498 +- 0.012
+
+Selected hyperparameters (count over outer folds):
+   18x {'model__alpha': np.float64(0.05179474679231213), 'model__l1_ratio': 0.5, 'select__k': 'all'}
+   14x {'model__alpha': np.float64(0.05179474679231213), 'model__l1_ratio': 1.0, 'select__k': 'all'}
+    8x {'model__alpha': np.float64(0.11787686347935872), 'model__l1_ratio': 1.0, 'select__k': 'all'}
+    4x {'model__alpha': np.float64(0.022758459260747887), 'model__l1_ratio': 0.5, 'select__k': 'all'}
+    4x {'model__alpha': np.float64(0.11787686347935872), 'model__l1_ratio': 0.5, 'select__k': 'all'}
+    2x {'model__alpha': np.float64(0.022758459260747887), 'model__l1_ratio': 1.0, 'select__k': 'all'}

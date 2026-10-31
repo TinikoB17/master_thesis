@@ -1,0 +1,28 @@
+Model: hgb
+Repeated nested CV: 5 outer folds x 10 repeats, 5-fold inner CV (tuned on balanced MAE)
+Samples: 968, miRNAs in cohort: 1036
+
+Across outer folds (mean +- sd, [2.5%, 97.5%]):
+  MAE: 7.744 +- 0.290  [7.112, 8.193]
+  balanced_MAE: 10.594 +- 0.477  [9.717, 11.571]
+  RMSE: 9.843 +- 0.355  [9.202, 10.488]
+  R2: 0.254 +- 0.049  [0.169, 0.345]
+  MedianAE: 6.378 +- 0.416  [5.481, 7.059]
+  bias: 0.023 +- 0.400  [-0.803, 0.682]
+  pearson_r: 0.510 +- 0.055  [0.411, 0.615]
+  baseline_MAE: 8.949 +- 0.189  [8.666, 9.292]
+  n_mirnas_used: 342.280 +- 49.965  [156.475, 354.000]
+
+Pooled out-of-fold predictions per repeat (mean +- sd across repeats):
+  MAE: 7.744 +- 0.088
+  balanced_MAE: 10.595 +- 0.162
+  R2: 0.254 +- 0.016
+  pearson_r: 0.507 +- 0.017
+
+Selected hyperparameters (count over outer folds):
+   27x {'model__learning_rate': 0.1, 'model__max_depth': 6, 'select__k': 'all'}
+   10x {'model__learning_rate': 0.03, 'model__max_depth': 6, 'select__k': 'all'}
+   10x {'model__learning_rate': 0.1, 'model__max_depth': 3, 'select__k': 'all'}
+    1x {'model__learning_rate': 0.1, 'model__max_depth': 3, 'select__k': 100}
+    1x {'model__learning_rate': 0.1, 'model__max_depth': 6, 'select__k': 100}
+    1x {'model__learning_rate': 0.03, 'model__max_depth': 3, 'select__k': 'all'}
