@@ -1,0 +1,50 @@
+# Settings for the whole analysis. Changing a value reruns the affected rules.
+
+# Projects to keep (healthy blood samples). Leave the list empty ([]) to keep all projects.
+projects:
+  - PPMI
+
+
+# Age range to keep, in years (both ends inclusive).
+# bin_width: age bins for the balanced MAE and the per-age-group errors, from min to max
+# (a last bin of at most half the width is merged into the previous one).
+# Changing only bin_width does not rerun the run_* model rules; force them with
+# snakemake --forcerun <rule>.
+age:
+  min: 40
+  max: 80
+  bin_width: 10
+
+# A miRNA counts as changing with age if its Pearson or Spearman correlation with age
+# has |r| >= min_abs_corr and p-value < max_pval.
+# Used by the calculate_corr rule and by the correlation filter in repeated CV.
+correlation:
+  min_abs_corr: 0.15
+  max_pval: 0.05
+
+# miRNA expression vs. age plots (plot_mirna_expression_vs_age rule): one figure per miRNA.
+# projects: samples to use; leave empty ([]) to use every project in the h5ad.
+# mirnas: names as in the h5ad var_names. If the list is empty:
+#   top_n > 0: plot the top_n miRNAs most correlated with age (|Spearman rho|, computed on
+#     the selected projects only); the ranking is saved as correlation_ranking.tsv
+#   top_n: 0  plot every miRNA in the file (about 1,000 figures for the default h5ad)
+# log2: plot log2(1 + expression) instead of the raw values (RPMM in the default h5ad)
+expression_plots:
+  h5ad: test_output/age_filtered_blood_healthy.h5ad
+  projects: []
+  mirnas: []
+  top_n: 0
+  log2: true
+
+# Differential expression by age (differential_expression_age rule), as in Huan et al. 2018
+# (Nat Commun 9:2015): per miRNA, expression ~ age + covariates by OLS on the
+# prevalence-filtered log2(1 + RPMM) healthy blood samples; the age coefficient is tested and
+# a miRNA is significant if P < alpha / number of miRNAs (Bonferroni).
+# samples: all   = training and test set together (descriptive analysis)
+#          train = training set only (use this if the results select features for the models)
+differential_expression_age:
+  samples: train
+  covariates:
+    - Project
+    - Sex
+  alpha: 0.05

@@ -1,0 +1,22 @@
+Model: mlp (sklearn MLPRegressor), all miRNAs
+Repeated nested CV: 5 outer folds x 1 repeats, 5-fold inner CV
+Samples: 944
+
+Across all outer folds (mean +- sd, [2.5%, 97.5%]):
+  MAE: 6.797 +- 0.505  [6.063, 7.281]
+  balanced_MAE: 8.804 +- 0.573  [8.074, 9.334]
+  RMSE: 8.731 +- 0.708  [7.812, 9.596]
+  R2: 0.364 +- 0.069  [0.269, 0.433]
+  baseline_MAE: 8.665 +- 0.307  [8.183, 8.822]
+
+Out-of-fold error per age bin (pooled over repeats):
+  (29.999, 40.0]   MAE  15.49   bias +15.38
+  (40.0, 50.0]     MAE  10.02   bias  +9.27
+  (50.0, 60.0]     MAE   4.83   bias  +2.38
+  (60.0, 70.0]     MAE   5.14   bias  -3.55
+  (70.0, 80.0]     MAE   8.43   bias  -8.26
+
+Selected hyperparameters (count over outer folds):
+    3x {'model__regressor__alpha': 10.0, 'model__regressor__hidden_layer_sizes': (64, 32)}
+    1x {'model__regressor__alpha': 1.0, 'model__regressor__hidden_layer_sizes': (64,)}
+    1x {'model__regressor__alpha': 10.0, 'model__regressor__hidden_layer_sizes': (64,)}

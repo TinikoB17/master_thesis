@@ -1,0 +1,169 @@
+from helpers import gather_projects
+
+configfile: "config.yaml"
+
+rule all:
+    input:
+        "figures/umap_all_Tissue.svg",
+        "figures/umap_all_Project.svg",
+        "figures/umap_all_Sequencing_Method.svg",
+        "figures/umap_all_Age.svg",
+        "figures/umap_blood_Tissue.svg",
+        "figures/umap_blood_Project.svg",
+        "figures/umap_blood_Sequencing_Method.svg",
+        "figures/umap_blood_Age.svg",
+        "figures/umap_highlight_blood.svg",
+        "figures/umap_sdai.svg",
+        all_diseases_blood = "figures/All Diseases_Blood_age_histogram.svg",
+        all_tissues_all_diseases = "figures/All_All_age_histogram.svg",
+        all_conditions_blood = "figures/All_Blood_age_histogram.svg",
+        healthy_blood = "figures/Healthy_Blood_age_histogram.svg",
+        cleaned_data = "test_output/all_human_miRNA_rpmm_harmonized_cleaned.h5ad",
+        blood_h5ad_all_diseases = "test_output/all_human_miRNA_rpmm_harmonized_cleaned_blood.h5ad",
+        blood_h5ad_healthy = "test_output/all_human_miRNA_rpmm_harmonized_cleaned_blood_healthy.h5ad",
+        rpmm_filtered_annotated = "test_output/all_human_miRNA_rpmm_harmonized_cleaned_blood_healthy.h5ad",
+        blood_healthy_train = "test_output/blood_healthy_train.h5ad",
+        blood_healthy_test = "test_output/blood_healthy_test.h5ad",
+        rpmm_filtered_train = "test_output/blood_healthy_rpmm_filt_train.h5ad",
+        rpmm_filtered_test = "test_output/blood_healthy_rpmm_filt_test.h5ad",
+        blood_metadata = "test_output/blood_metadata_tissueatlas.csv",
+        blood_healthy_metadata = "test_output/blood_metadata_tissueatlas_healthy.csv",
+        prevalence = "figures/gene_expression_prevalence.svg",
+        # test_inp = "models/test_disease.csv",
+        changing_mirnas = "test_output/changing_mirnas.csv",
+        pearson_histogram = "figures/Pearson_correlation_histogram.svg",
+        spearman_histogram = "figures/Spearman_correlation_histogram.svg",
+        project_counts = "figures/healthy_blood_project_counts.svg",
+        project_max_age = "figures/healthy_blood_project_max_age.svg",
+        sequencing_method_counts = "figures/count_sequencing_method_in_blood.svg",
+        disease_condition_counts = "figures/count_disease_condition_in_blood.svg",
+        mirna_expression_vs_age = "figures/mirna_expression_vs_age",
+        de_age = "test_output/differential_expression/age_bonferroni.tsv",
+        variance_partitioning = "test_output/variance_partitioning.csv",
+        age_filtered = "test_output/age_filtered_blood_healthy.h5ad",
+        train_age = "figures/train_age_histogram.svg",
+        test_age = "figures/test_age_histogram.svg",
+        # projects = gather_projects("test_output/all_human_miRNA_rpmm_harmonized_cleaned_blood_healthy.h5ad"),
+        # models evaluated on test data z-scored with training-set stats
+        linear_regression_eval_ts = "models/evaluation/linear_regression_eval_train_stats.txt",
+        linear_regression_eval_all_ts = "models/evaluation/linear_regression_eval_all_train_stats.txt",
+        linear_regression_pol2_eval_ts = "models/evaluation/linear_regression_pol2_eval_train_stats.txt",
+        lasso_eval_ts = "models/evaluation/lasso_eval_train_stats.txt",
+        lasso_all_eval_ts = "models/evaluation/lasso_all_eval_train_stats.txt",
+        hgb_eval_ts = "models/evaluation/hgb_eval_train_stats.txt",
+        svr_eval_ts = "models/evaluation/svr_eval_train_stats.txt",
+
+
+rule clean_original_h5ad:
+    input:
+        original_h5ad = "original_input/all_human_miRNA_rpmm_harmonized_meta_data.h5ad",
+        metadata = "original_input/human_combined.tsv",
+        high_confidence_mirnas = "test_output/high_confidence_mirnas.txt"
+    output: 
+        cleaned_data = "test_output/all_human_miRNA_rpmm_harmonized_cleaned.h5ad"
+    script:
+        "scripts/clean_original_h5ad.py"
+
+rule produce_blood_data:
+    input:
+        cleaned_data = "test_output/all_human_miRNA_rpmm_harmonized_cleaned.h5ad"
+    output:
+        blood_h5ad_all_diseases = "test_output/all_human_miRNA_rpmm_harmonized_cleaned_blood.h5ad",
+        blood_h5ad_healthy = "test_output/all_human_miRNA_rpmm_harmonized_cleaned_blood_healthy.h5ad",
+        blood_metadata = "test_output/blood_metadata_tissueatlas.csv",
+        blood_healthy_metadata = "test_output/blood_metadata_tissueatlas_healthy.csv"
+    script:
+        "scripts/filter_cleaned_h5ads.py"
+
+# Keep the projects and age range set in config.yaml
+rule filter_projects_age:
+    input:
+        rpmm_filtered_annotated = "test_output/all_human_miRNA_rpmm_harmonized_cleaned_blood_healthy.h5ad"
+    output:
+        age_filtered = "test_output/age_filtered_blood_healthy.h5ad"
+    params:
+        projects = config["projects"],
+        min_age = config["age"]["min"],
+        max_age = config["age"]["max"]
+    script:
+        "scripts/filter_age.py"
+
+rule split_train_test:
+    input:
+        rpmm_filtered_annotated = "test_output/age_filtered_blood_healthy.h5ad"
+    output:
+        blood_healthy_train = "test_output/blood_healthy_train.h5ad",
+        blood_healthy_test = "test_output/blood_healthy_test.h5ad"
+    script:
+        "scripts/split_train_test.py"
+
+
+rule visualize_rpmm_thresholds:
+    input:
+        blood_h5ad_healthy_train = "test_output/blood_healthy_train.h5ad",
+        blood_healthy_test = "test_output/blood_healthy_test.h5ad"
+    output:
+        prevalence = "figures/gene_expression_prevalence.svg",
+        rpmm_filtered_train = "test_output/blood_healthy_rpmm_filt_train.h5ad",
+        rpmm_filtered_test = "test_output/blood_healthy_rpmm_filt_test.h5ad"
+    script:
+        "scripts/rpmm_thresholds.py"
+
+rule calculate_corr:
+    input:
+        rpmm_filtered_train = "test_output/blood_healthy_rpmm_filt_train.h5ad"
+    output:
+        changing_mirnas = "test_output/changing_mirnas.csv",
+        correlations = "test_output/correlations.csv"
+    params:
+        min_abs_corr = config["correlation"]["min_abs_corr"],
+        max_pval = config["correlation"]["max_pval"]
+    script:
+        "scripts/calculate_correlations.py"
+
+
+# miRNAs associated with age (continuous), Bonferroni-corrected, as in Huan et al. 2018;
+# settings in config.yaml
+rule differential_expression_age:
+    input:
+        expression = (["test_output/blood_healthy_rpmm_filt_train.h5ad",
+                       "test_output/blood_healthy_rpmm_filt_test.h5ad"]
+                      if config["differential_expression_age"]["samples"] == "all"
+                      else ["test_output/blood_healthy_rpmm_filt_train.h5ad"])
+    output:
+        table = "test_output/differential_expression/age_bonferroni.tsv",
+        volcano = "figures/differential_expression/age_bonferroni_volcano.svg"
+    params:
+        covariates = config["differential_expression_age"]["covariates"],
+        alpha = config["differential_expression_age"]["alpha"],
+        sample_label = ("training and test set" if config["differential_expression_age"]["samples"] == "all"
+                        else "training set")
+    script:
+        "scripts/differential_expression_age.py"
+
+rule variance_partitioning:
+    input:
+        rpmm_filtered_train = "test_output/blood_healthy_rpmm_filt_train.h5ad"
+    output:
+        variance = "test_output/variance_partitioning.csv",
+        lmm_plot = "figures/lmm.svg"
+    threads: 8
+    script:
+        "scripts/variance_partitioning.py"
+
+# Same as produce_model_input, but test set is z-scored with per-project stats from the training set
+rule produce_model_input_train_stats:
+    input:
+        blood_h5ad_healthy = "test_output/blood_healthy_rpmm_filt_train.h5ad",
+        threshold_miRNAs = "test_output/changing_mirnas.csv",
+        test_h5ad = "test_output/blood_healthy_rpmm_filt_test.h5ad"
+    output:
+        model_input = "model_input_data/blood_healthy_age_scaled_train_train_stats.csv",
+        model_test = "model_input_data/blood_healthy_age_scaled_test_train_stats.csv",
+        model_inp_all = "model_input_data/blood_healthy_age_all_train_train_stats.csv",
+        model_test_all = "model_input_data/blood_healthy_age_all_test_train_stats.csv"
+    script:
+        "scripts/model_preprocessing_train_stats.py"
+
+include: "visualization.smk"
+include: "run_models.smk"
