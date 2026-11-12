@@ -68,7 +68,7 @@ def main():
     # Very small alphas converge slowly, hence the high max_iter.
     param_grid = {
         "model__alpha": np.logspace(-3, 1, 25),
-        "feature_selection__k": ["all"],
+        "feature_selection__k":  [50, 70, 100, 200, "all"],
     }
 
     cv = KFold(n_splits=5, shuffle=True, random_state=42)

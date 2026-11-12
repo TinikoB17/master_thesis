@@ -1,0 +1,48 @@
+SVR (GSE113740 controls, z-scored per group) - cancer samples
+Preprocessing: miRNAs z-scored within each cancer type (own mean and SD)
+Left out (fewer than 10 samples): {'Sarcoma': 4}
+
+All cancer samples (n = 620, age 17-90, mean 65.1):
+  MAE = 8.688, MedianAE = 6.918, RMSE = 11.296, R2 = 0.001, pearson_r = 0.062
+  bias (mean predicted - actual) = 0.635, mean predicted age = 65.75, SD of predictions = 0.74 (actual SD 11.31)
+  within cancer types: n = 620, groups = 13, within_r = 0.069, offset_corrected_MAE = 7.963, group_mean_baseline_MAE = 7.981
+Within the training age range (40, 80) (n = 568, age 40-80, mean 64.7):
+  MAE = 7.476, MedianAE = 6.375, RMSE = 9.410, R2 = -0.006, pearson_r = 0.085
+  bias (mean predicted - actual) = 1.097, mean predicted age = 65.76, SD of predictions = 0.74 (actual SD 9.39)
+  within cancer types: n = 568, groups = 13, within_r = 0.101, offset_corrected_MAE = 6.877, group_mean_baseline_MAE = 6.911
+Male (n = 435, age 17-90, mean 66.3):
+  MAE = 7.959, MedianAE = 6.707, RMSE = 10.204, R2 = 0.004, pearson_r = 0.083
+  bias (mean predicted - actual) = -0.557, mean predicted age = 65.74, SD of predictions = 0.76 (actual SD 10.24)
+  within cancer types: n = 435, groups = 11, within_r = 0.083, offset_corrected_MAE = 7.664, group_mean_baseline_MAE = 7.693
+Female (n = 185, age 17-89, mean 62.4):
+  MAE = 10.402, MedianAE = 7.829, RMSE = 13.520, R2 = -0.068, pearson_r = 0.039
+  bias (mean predicted - actual) = 3.437, mean predicted age = 65.79, SD of predictions = 0.69 (actual SD 13.12)
+  within cancer types: n = 141, groups = 5, within_r = -0.003, offset_corrected_MAE = 8.829, group_mean_baseline_MAE = 8.797
+
+Errors by age group:
+    age_group   n       MAE  MedianAE
+ [10.0, 20.0)   2 48.650135 48.650135
+ [20.0, 30.0)   1 41.673263 41.673263
+ [30.0, 40.0)  10 31.645986 31.728968
+ [40.0, 50.0)  50 20.785912 20.860139
+ [50.0, 60.0)  92 10.430610  9.594848
+ [60.0, 70.0) 223  2.698648  2.591654
+ [70.0, 80.0) 195  7.858180  7.542451
+ [80.0, 90.0)  46 16.818488 16.091081
+[90.0, 100.0)   1 24.459004 24.459004
+
+Errors by cancer type (bias = mean predicted - actual age; within_baseline_MAE = MAE of predicting the type's mean age):
+                   group   n  mean_age   bias    MAE  MedianAE   RMSE     R2  pearson_r  within_baseline_MAE
+                     HCC 305    67.518 -1.764  7.815     6.849  9.650 -0.031      0.059                7.517
+Hepatocellular Carcinoma  40    67.950 -2.196  5.583     4.750  6.861 -0.039      0.349                5.500
+           Breast Cancer  25    53.120 12.634 14.122    14.933 16.786 -1.240      0.274                9.734
+          Bladder Cancer  25    70.200 -4.446  8.038     7.206 10.637 -0.263     -0.294                7.824
+    Biliary Tract Cancer  25    66.840 -1.086  7.443     5.274  9.545  0.068      0.573                7.754
+       Esophageal Cancer  25    65.880 -0.126  5.732     4.618  7.579  0.000      0.045                5.866
+       Colorectal Cancer  25    61.800  3.954 10.662     7.754 12.995 -0.106     -0.014                9.584
+                  Glioma  25    51.680 14.074 18.116    12.684 23.495 -0.562     -0.004               16.118
+          Gastric Cancer  25    65.600  0.154  9.334     7.008 11.292  0.035      0.313                9.616
+             Lung Cancer  25    62.920  2.834  7.878     5.878  9.604 -0.113     -0.014                7.683
+          Ovarian Cancer  25    52.880 12.874 15.324    17.071 17.126 -1.338     -0.082                9.216
+       Pancreatic Cancer  25    64.320  1.434  7.830     5.101 10.346 -0.050     -0.224                7.587
+         Prostate Cancer  25    67.280 -1.526  6.707     5.868  8.278 -0.054     -0.011                6.429

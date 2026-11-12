@@ -1,0 +1,44 @@
+GSE122497 controls, z-scored per group: StandardScaler -> SelectKBest(f_regression) -> SVR
+Train: 2885 samples, holdout: 722 samples, 1095 candidate features
+
+Best settings: {'k': 75, 'C': 30, 'epsilon': 0.5, 'gamma': 'scale', 'kernel': 'rbf'} (75 features), 2773 support vectors
+Best 15 of 552 settings by CV MAE:
+
+  k     C  epsilon gamma kernel   CV_MAE  CV_MAE_sd
+ 75  30.0      0.5 scale    rbf 7.789109   0.353200
+ 75  30.0      1.0 scale    rbf 7.789798   0.341403
+ 75  30.0      0.1 scale    rbf 7.792358   0.359178
+ 50  30.0      1.0 scale    rbf 7.882626   0.340191
+100  30.0      0.5 scale    rbf 7.882665   0.427658
+100  30.0      1.0 scale    rbf 7.885475   0.420664
+100  30.0      0.1 scale    rbf 7.885669   0.430391
+ 50  30.0      0.5 scale    rbf 7.891911   0.354066
+ 50  30.0      0.1 scale    rbf 7.900048   0.366751
+ 75 100.0      1.0 scale    rbf 7.909880   0.330074
+ 40  30.0      1.0 scale    rbf 7.917167   0.331541
+ 75 100.0      0.5 scale    rbf 7.925357   0.335055
+ 40  30.0      0.5 scale    rbf 7.927493   0.343910
+ 40  30.0      0.1 scale    rbf 7.943194   0.354685
+ 75 100.0      0.1 scale    rbf 7.944284   0.339359
+
+CV (training set): MAE = 7.789, MedianAE = 6.686, RMSE = 9.651, R2 = 0.386, pearson_r = 0.623
+Holdout: MAE = 7.485, MedianAE = 6.336, RMSE = 9.339, R2 = 0.412, pearson_r = 0.648
+Holdout MAE of always predicting the training median age: 10.584
+
+Within-group evaluation (groups with >= 10 samples; see model_utils.within_group_metrics):
+CV (training set): n = 2885, groups = 3, within_r = 0.189, offset_corrected_MAE = 6.964, group_mean_baseline_MAE = 6.305
+Holdout: n = 722, groups = 3, within_r = 0.207, offset_corrected_MAE = 7.058, group_mean_baseline_MAE = 6.270
+
+Holdout errors by age group:
+   age_group   n       MAE  MedianAE
+[40.0, 50.0) 134 10.861247 10.176468
+[50.0, 60.0) 151  6.128283  5.284755
+[60.0, 70.0) 156  6.137754  5.256967
+[70.0, 80.0) 252  7.059994  5.733322
+[80.0, 90.0)  29  9.876990 10.272845
+
+Holdout errors by group (bias = mean predicted - actual age):
+       group   n  mean_age   bias   MAE  MedianAE   RMSE     R2  pearson_r
+Non-cancer 1  44    56.432  2.675 9.973     8.668 12.092 -0.207      0.097
+Non-cancer 2 358    72.081 -2.418 6.716     5.583  8.288 -0.727      0.100
+Non-cancer 3 320    53.419  2.818 8.002     6.825  9.991 -0.195      0.294

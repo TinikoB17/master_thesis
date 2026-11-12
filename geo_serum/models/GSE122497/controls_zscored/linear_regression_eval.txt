@@ -1,0 +1,36 @@
+GSE122497 controls, z-scored per group: StandardScaler -> SelectKBest(f_regression) -> LinearRegression
+Train: 2885 samples, holdout: 722 samples, 1095 candidate features
+
+Best k: 20 (20 features)
+
+  k    CV_MAE  CV_MAE_sd
+ 20 10.845026   0.228357
+ 30 10.845831   0.217437
+ 40 10.849040   0.198219
+ 50 10.935034   0.191309
+ 75 11.033951   0.167173
+100 11.169623   0.180784
+150 11.344933   0.171557
+200 11.588484   0.138841
+
+CV (training set): MAE = 10.845, MedianAE = 11.072, RMSE = 12.288, R2 = 0.004, pearson_r = 0.102
+Holdout: MAE = 10.608, MedianAE = 10.195, RMSE = 12.172, R2 = 0.001, pearson_r = 0.097
+Holdout MAE of always predicting the training median age: 10.584
+
+Within-group evaluation (groups with >= 10 samples; see model_utils.within_group_metrics):
+CV (training set): n = 2885, groups = 3, within_r = 0.212, offset_corrected_MAE = 6.117, group_mean_baseline_MAE = 6.305
+Holdout: n = 722, groups = 3, within_r = 0.214, offset_corrected_MAE = 6.107, group_mean_baseline_MAE = 6.270
+
+Holdout errors by age group:
+   age_group   n       MAE  MedianAE
+[40.0, 50.0) 134 18.265813 18.599090
+[50.0, 60.0) 151  8.766124  9.083660
+[60.0, 70.0) 156  3.349213  2.923396
+[70.0, 80.0) 252 11.447813 11.079594
+[80.0, 90.0)  29 16.564130 16.991617
+
+Holdout errors by group (bias = mean predicted - actual age):
+       group   n  mean_age   bias    MAE  MedianAE   RMSE     R2  pearson_r
+Non-cancer 1  44    56.432  6.205 10.796    11.889 12.620 -0.315      0.087
+Non-cancer 2 358    72.081 -9.284 10.032    10.119 11.192 -2.150      0.204
+Non-cancer 3 320    53.419  9.683 11.227    10.234 13.124 -1.062      0.247

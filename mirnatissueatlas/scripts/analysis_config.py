@@ -4,7 +4,7 @@ from pathlib import Path
 import yaml
 
 # Reads config.yaml from the repository root, for modules that are imported by the
-# Snakemake scripts (metrics.py, cv_preprocessing.py) and so have no snakemake object.
+# Snakemake scripts (metrics.py) and so have no snakemake object.
 # A separate workflow (e.g. plasma/Snakefile) points ANALYSIS_CONFIG to its own config.
 
 CONFIG_PATH = Path(os.environ.get("ANALYSIS_CONFIG", Path(__file__).resolve().parents[1] / "config.yaml"))

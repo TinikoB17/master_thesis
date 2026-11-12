@@ -1,0 +1,5 @@
+comparison	case	reference	n_case	n_reference	age_range	n_tested	case_projects	reference_projects	significant	up	down	bonferroni	fdr_only	median_abs_log2FC
+sdai_vs_healthy	SDAI	Healthy	2438	978	20-84	349	['PRJNA381937']	['PPMI', 'PRJNA518782', 'PRJNA556869', 'PRJNA588168', 'PRJNA664793', 'PRJNA667727', 'PRJNA813953', 'PRJNA924754']	233	103	130	336	343	1.4075605051641396
+sdai_vs_healthy_hiseq2000	SDAI	Healthy (HiSeq 2000)	2392	97	22-84	319	['PRJNA381937']	['PRJNA518782', 'PRJNA556869', 'PRJNA924754']	214	122	92	280	301	1.477482859807816
+batch_control	Healthy, other projects	Healthy, PPMI	144	822	31-84	314	['PRJNA556869', 'PRJNA588168', 'PRJNA664793', 'PRJNA667727', 'PRJNA813953', 'PRJNA924754']	['PPMI']	202	24	178	270	290	1.3002433409020515
+pd_vs_healthy_ppmi	PD (PPMI)	Healthy (PPMI)	1643	791	34-84	307	['PPMI']	['PPMI']	0	0	0	93	167	0.06032596644411373

@@ -1,0 +1,27 @@
+GSE122497 Non-cancer 2 only, all ages: StandardScaler -> SelectKBest(f_regression) -> LinearRegression
+Train: 2136 samples, holdout: 534 samples, 1095 candidate features
+
+Best k: 30 (30 features)
+
+  k   CV_MAE  CV_MAE_sd
+ 20 6.005999   0.072077
+ 30 5.970211   0.082448
+ 40 5.987516   0.105070
+ 50 6.024730   0.143613
+ 75 6.057306   0.207054
+100 6.062395   0.162598
+150 6.156457   0.146354
+200 6.283550   0.166603
+
+CV (training set): MAE = 5.970, MedianAE = 5.091, RMSE = 7.694, R2 = 0.114, pearson_r = 0.340
+Holdout: MAE = 6.124, MedianAE = 5.028, RMSE = 7.894, R2 = 0.051, pearson_r = 0.261
+Holdout MAE of always predicting the training median age: 6.279
+
+Holdout errors by age group:
+    age_group   n       MAE  MedianAE
+ [40.0, 50.0)   4 26.497557 27.293240
+ [50.0, 60.0)  13 19.899268 21.281328
+ [60.0, 70.0)  83  9.696848  9.757300
+ [70.0, 80.0) 231  3.238222  2.812014
+ [80.0, 90.0) 190  6.077452  5.800783
+[90.0, 100.0)  13 15.220425 15.168884

@@ -11,14 +11,12 @@ annotated_miRNA_blood_healthy = sc.read_h5ad(blood_h5ad_healthy)
 
 sdai = annotated_miRNA[annotated_miRNA.obs["Disease_Condition"].str.contains("SDAI")].copy()
 
-plot_umap_from_anndata(annotated_miRNA, color_by="Disease_Condition", blood_or_all_tissues="All Tissues")
 plot_umap_from_anndata(annotated_miRNA, color_by="Tissue", blood_or_all_tissues="All Tissues")
 plot_umap_from_anndata(annotated_miRNA, color_by="Project", blood_or_all_tissues="All Tissues")
 plot_umap_from_anndata(annotated_miRNA, color_by="Sequencing_Method", blood_or_all_tissues="All Tissues")
 plot_umap_from_anndata(annotated_miRNA, color_by="Age", blood_or_all_tissues="All Tissues")
 plot_highlight_blood(annotated_miRNA)
 
-plot_umap_from_anndata(annotated_miRNA_blood, color_by="Disease_Condition", blood_or_all_tissues="Blood")
 plot_umap_from_anndata(annotated_miRNA_blood, color_by="Tissue", blood_or_all_tissues="Blood")
 plot_umap_from_anndata(annotated_miRNA_blood, color_by="Project", blood_or_all_tissues="Blood")
 plot_umap_from_anndata(annotated_miRNA_blood, color_by="Sequencing_Method", blood_or_all_tissues="Blood")

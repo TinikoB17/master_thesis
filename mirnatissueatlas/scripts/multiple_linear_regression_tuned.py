@@ -1,12 +1,11 @@
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 import joblib
 from sklearn.compose import ColumnTransformer
 from sklearn.feature_selection import SelectKBest, f_regression
 from sklearn.linear_model import LinearRegression, Ridge
 from sklearn.metrics import mean_absolute_error, r2_score, root_mean_squared_error, median_absolute_error
-from sklearn.model_selection import GridSearchCV, KFold, cross_val_predict
+from sklearn.model_selection import GridSearchCV, KFold
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, PowerTransformer
 from sklearn.utils.class_weight import compute_class_weight
@@ -96,16 +95,6 @@ def main():
     print("Best params:", search.best_params_)
     print("Best CV balanced MAE:", -search.best_score_)
 
-    y_pred_cv = cross_val_predict(best_model, X, y, cv=cv)
-    plt.figure(figsize=(6, 6))
-    plt.scatter(y, y_pred_cv, alpha=0.7)
-    plt.plot([y.min(), y.max()], [y.min(), y.max()], linestyle="--", color="darkorange")
-    plt.xlabel("Actual Age")
-    plt.ylabel("Predicted Age")
-    plt.title("Linear Regression / Ridge - CV predictions")
-    plt.tight_layout()
-    plt.savefig("figures/linear_regression_tuned_cv_prediction.svg")
-    plt.close()
 
     test_data = pd.read_csv(TEST_DATA_PATH, sep="\t").set_index("Sample")
     X_test = test_data.drop(columns=["Age"])

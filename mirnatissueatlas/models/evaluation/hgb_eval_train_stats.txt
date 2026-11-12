@@ -1,0 +1,5 @@
+Best Params: {'feature_selection__k': 200, 'model__l2_regularization': np.float64(0.068706142826133), 'model__learning_rate': np.float64(0.0271747096730583), 'model__loss': 'squared_error', 'model__max_depth': 5, 'model__max_features': np.float64(0.3144091460070617), 'model__max_leaf_nodes': 8, 'model__min_samples_leaf': 33}, Best CV balanced MAE: 6.0689216567584765 
+Test R2: 0.17412863138971657, 
+ Test MAE: 6.6552612736695425, 
+ Test RMSE: 8.305408383893633, 
+ Test balanced MAE: 7.865668967733093

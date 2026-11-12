@@ -1,0 +1,397 @@
+# Serum miRNA microarray series from GEO (Toray 3D-Gene, GPL21263). Every series has its own
+# subfolder in original_input/ (file name), data/, models/ and figures/.
+# - GSE122497: esophageal cancer study (566 esophageal cancer, 4,965 non-cancer controls)
+# - GSE113740: hepatocellular carcinoma study (345 HCC, 139 chronic hepatitis / liver
+#   cirrhosis, 954 non-cancer controls, 13 other cancer types). Shares about 300 identical
+#   sample profiles with GSE122497 (Non-cancer 1-3, 14 esophageal cancer), so the two series are
+#   not independent
+# Run from this folder: snakemake --cores all
+
+SERIES = ["GSE113740"]
+# Every configured series, for the miRNA name map (so switching SERIES keeps it valid)
+ALL_SERIES = ["GSE122497", "GSE113740"]
+
+# Per series: the sample field with the disease state (None: the sample title without its
+# bracketed code, scripts/extract_series.py), and the values that mean "healthy control"
+# (title_label = the sample title without its bracketed code, scripts/geo_series.py)
+DISEASE_FIELD = {"GSE122497": "disease status", "GSE113740": None}
+CONTROLS = {"GSE122497": {"disease status": ["Non-cancer 1", "Non-cancer 2", "Non-cancer 3"]},
+            "GSE113740": {"title_label": ["Non-cancer 1", "Non-cancer 2", "Non-cancer 3"]}}
+# Disease states grouped for the plots (UMAP colours, age histograms), in a fixed colour order
+# (at most 8 groups)
+GSE113740_CANCERS = ["Biliary Tract Cancer", "Bladder Cancer", "Breast Cancer",
+                     "Colorectal Cancer", "Esophageal Cancer", "Gastric Cancer", "Glioma",
+                     "Lung Cancer", "Ovarian Cancer", "Pancreatic Cancer", "Prostate Cancer",
+                     "Sarcoma"]
+DISEASE_GROUPS = {
+    "GSE122497": {state: [state] for state in ["Non-cancer 1", "Non-cancer 2", "Non-cancer 3",
+                                               "Esophageal cancer"]},
+    "GSE113740": {
+        "Non-cancer 1": ["Non-cancer 1"],
+        "Non-cancer 2": ["Non-cancer 2"],
+        "Non-cancer 3": ["Non-cancer 3"],
+        "HCC": ["HCC", "Hepatocellular Carcinoma"],
+        "Liver disease": ["Chronic hepatitis", "Liver Cirrhosis"],
+        "Other cancers": GSE113740_CANCERS,
+        # Not used as controls: 10 samples of the multi-cancer panel, and 64 unlabelled
+        # "Non-CVD control" samples (41 of them also in GSE122497 Non-cancer 3)
+        "Other controls": ["Non-cancer control", "Non-CVD control"],
+    },
+}
+DISEASE_ORDER = {series: list(groups) for series, groups in DISEASE_GROUPS.items()}
+# Disease states the controls-trained age models are applied to (section 5)
+CANCERS = {"GSE122497": ["Esophageal cancer"],
+           "GSE113740": ["HCC", "Hepatocellular Carcinoma"] + GSE113740_CANCERS}
+
+# miRBase high-confidence mature miRNAs, made by the miRNATissueAtlas pipeline
+# (../mirnatissueatlas/scripts/high_conf_mirnas.py)
+HIGH_CONFIDENCE_MIRNAS = "../mirnatissueatlas/test_output/high_confidence_mirnas.txt"
+# Value given to every undetected miRNA in every sample (log2 scale), e.g. -7.0 (below the
+# lowest detected value of GSE122497, -6.30); see scripts/preprocess_expression.py.
+# None keeps the values as deposited, with each sample's own floor
+COMMON_FLOOR = None
+# Quantile normalisation of all samples of a series, on the whole profile after the floor step
+# (scripts/preprocess_expression.py)
+QUANTILE_NORMALIZE = True
+# Age range of the controls dataset in years, both ends inclusive; None keeps all ages
+CONTROLS_AGE_RANGE = (40, 80)
+# Single-cohort datasets: name -> (control groups, age range or None for all ages). One batch, so
+# no per-group z-scoring; the age models run on the log2 values
+COHORTS = {"noncancer2": (["Non-cancer 2"], None)}
+
+wildcard_constraints:
+    series = "|".join(ALL_SERIES),
+    dataset = "|".join(["controls", "controls_zscored", "controls_zscored_cohort"] + list(COHORTS)),
+    cohort = "|".join(["controls"] + list(COHORTS))
+
+# Numbers of miRNAs (k) tried by the models that select features with SelectKBest
+K_VALUES = [20, 30, 40, 50, 75, 100, 150, 200]
+
+# Name of a {dataset} in plot titles and reports
+DATASET_LABELS = {"controls": "controls", "controls_zscored": "controls, z-scored per group",
+                  "controls_zscored_cohort": "controls, z-scored per group, cohort as feature",
+                  "noncancer2": "Non-cancer 2 only, all ages"}
+
+
+def group_names(series):
+    """Disease groups of a series as used in file names ("Non-cancer 1" -> "Non-cancer_1")."""
+    return [group.replace(" ", "_") for group in DISEASE_ORDER[series]]
+
+
+def plot_groups(series):
+    """Disease state -> plot group."""
+    return {state: group for group, states in DISEASE_GROUPS[series].items() for state in states}
+
+
+rule all:
+    input:
+        controls = expand("data/{series}/controls/metadata.tsv", series=SERIES),
+        age_histograms = [f"figures/{series}/age_histogram_{group}.svg"
+                          for series in SERIES for group in group_names(series) + ["controls"]],
+        umap = expand("figures/{series}/umap/umap_{color}.svg", series=SERIES,
+                      color=["Age", "Disease_State", "Sex", "Original_Floor"]),
+        mirna_vs_age = expand("figures/{series}/mirna_vs_age/top_mirnas.svg", series=SERIES),
+        linear_regression = expand("models/{series}/controls_zscored/linear_regression_eval.txt",
+                                   series=SERIES),
+        svr = expand("models/{series}/controls_zscored/svr_eval.txt", series=SERIES),
+        cohort_feature = expand("models/{series}/controls_zscored_cohort/{model}_eval.txt",
+                                series=SERIES, model=["linear_regression", "svr"]),
+        cohort_models = expand("models/{series}/{dataset}/{model}_eval.txt", series=SERIES,
+                               dataset=list(COHORTS), model=["linear_regression", "svr"]),
+        cancer = expand("models/{series}/{dataset}/svr_cancer_eval.txt", series=SERIES,
+                        dataset=["controls_zscored"] + list(COHORTS)),
+
+
+# ---- 1. Series tables ----
+
+# Expression (rows = samples, columns = miRBase accessions, values as deposited) and metadata
+# (Title, Disease_State, Sex, Age)
+rule extract_series:
+    input:
+        series_matrix = "original_input/{series}_series_matrix.txt"
+    output:
+        expression = "data/{series}/expression_accessions.tsv",
+        metadata = "data/{series}/metadata.tsv"
+    params:
+        disease_field = lambda wildcards: DISEASE_FIELD[wildcards.series],
+        controls = lambda wildcards: CONTROLS[wildcards.series]
+    script:
+        "scripts/extract_series.py"
+
+
+# miRBase mature sequences, human (hsa) entries only
+rule download_mirbase_mature:
+    output:
+        mature_fa = "data/mirbase/hsa_mature.fa"
+    shell:
+        "curl -sSfL https://mirbase.org/download/mature.fa"
+        " | awk '/^>/ {{keep = ($1 ~ /^>hsa-/)}} keep' > {output.mature_fa}"
+
+
+# Accession -> mature miRNA name for the accessions of all series; accessions missing from
+# hsa_mature.fa are looked up on https://mirbase.org/mature/{accession}
+rule map_mirna_names:
+    input:
+        mature_fa = "data/mirbase/hsa_mature.fa",
+        expressions = expand("data/{series}/expression_accessions.tsv", series=ALL_SERIES)
+    output:
+        name_map = "data/mirna_name_map.tsv"
+    script:
+        "scripts/map_mirna_names.py"
+
+
+# miRNA names as columns; probes matching several miRNAs (multi-accession) are dropped
+rule rename_mirnas:
+    input:
+        expression = "data/{series}/expression_accessions.tsv",
+        name_map = "data/mirna_name_map.tsv"
+    output:
+        expression_named = "data/{series}/expression_named.tsv"
+    script:
+        "scripts/rename_mirnas.py"
+
+
+# ---- 2. Preprocessing ----
+
+# Common floor for undetected values (unless COMMON_FLOOR is None), quantile normalisation
+# (if QUANTILE_NORMALIZE), then only the high-confidence miRNAs
+rule preprocess_expression:
+    input:
+        expression = "data/{series}/expression_named.tsv",
+        high_confidence_mirnas = HIGH_CONFIDENCE_MIRNAS
+    output:
+        expression = "data/{series}/expression.tsv",
+        floors = "data/{series}/undetected_floors.tsv"
+    params:
+        common_floor = COMMON_FLOOR,
+        quantile_normalize = QUANTILE_NORMALIZE
+    script:
+        "scripts/preprocess_expression.py"
+
+
+# Healthy controls: control groups, known age and sex, CONTROLS_AGE_RANGE, unique profiles
+rule build_controls:
+    input:
+        expression = "data/{series}/expression.tsv",
+        metadata = "data/{series}/metadata.tsv",
+        floors = "data/{series}/undetected_floors.tsv"
+    output:
+        expression = "data/{series}/controls/expression.tsv",
+        metadata = "data/{series}/controls/metadata.tsv"
+    params:
+        groups = lambda wildcards: list(CONTROLS[wildcards.series].values())[0],
+        age_range = CONTROLS_AGE_RANGE
+    script:
+        "scripts/build_controls.py"
+
+
+# One control group (COHORTS), same filters as build_controls
+rule build_cohort:
+    input:
+        expression = "data/{series}/expression.tsv",
+        metadata = "data/{series}/metadata.tsv",
+        floors = "data/{series}/undetected_floors.tsv"
+    output:
+        expression = "data/{series}/{dataset}/expression.tsv",
+        metadata = "data/{series}/{dataset}/metadata.tsv"
+    wildcard_constraints:
+        dataset = "|".join(COHORTS)
+    params:
+        groups = lambda wildcards: COHORTS[wildcards.dataset][0],
+        age_range = lambda wildcards: COHORTS[wildcards.dataset][1]
+    script:
+        "scripts/build_controls.py"
+
+
+# ---- 3. Exploration ----
+
+# Age histogram of one disease state ({group} with "_" for spaces), or of all controls
+rule plot_age_histogram:
+    input:
+        metadata = "data/{series}/metadata.tsv"
+    output:
+        histogram = "figures/{series}/age_histogram_{group}.svg"
+    params:
+        group = lambda wildcards: (f"{wildcards.series} controls" if wildcards.group == "controls"
+                                   else f"{wildcards.series} {wildcards.group.replace('_', ' ')}"),
+        disease_states = lambda wildcards: (list(CONTROLS[wildcards.series].values())[0]
+                                            if wildcards.group == "controls"
+                                            else DISEASE_GROUPS[wildcards.series][wildcards.group.replace("_", " ")])
+    script:
+        "scripts/plot_age_histogram.py"
+
+
+# UMAP of all samples (scale, PCA, neighbours, UMAP), coloured by age, disease state, sex and
+# original floor value
+rule plot_umap:
+    input:
+        expression = "data/{series}/expression.tsv",
+        metadata = "data/{series}/metadata.tsv",
+        floors = "data/{series}/undetected_floors.tsv"
+    output:
+        embedding = "data/{series}/umap_embedding.tsv",
+        age = "figures/{series}/umap/umap_Age.svg",
+        disease_state = "figures/{series}/umap/umap_Disease_State.svg",
+        sex = "figures/{series}/umap/umap_Sex.svg",
+        floor = "figures/{series}/umap/umap_Original_Floor.svg"
+    params:
+        name = lambda wildcards: wildcards.series,
+        disease_order = lambda wildcards: DISEASE_ORDER[wildcards.series],
+        plot_groups = lambda wildcards: plot_groups(wildcards.series),
+        n_pcs = 50,
+        n_neighbors = 15,
+        seed = 42
+    script:
+        "scripts/plot_umap.py"
+
+
+# miRNA expression vs age in the non-cancer cohorts (the controls dataset, so CONTROLS_AGE_RANGE
+# applies), coloured by cohort; miRNAs ranked by the within-cohort correlation with age
+rule plot_mirna_vs_age:
+    input:
+        expression = "data/{series}/controls/expression.tsv",
+        metadata = "data/{series}/controls/metadata.tsv"
+    output:
+        stats = "data/{series}/mirna_vs_age/age_correlations.tsv",
+        top_plot = "figures/{series}/mirna_vs_age/top_mirnas.svg",
+        all_plots = "figures/{series}/mirna_vs_age/all_mirnas.pdf"
+    params:
+        name = lambda wildcards: wildcards.series,
+        cohort_order = lambda wildcards: list(CONTROLS[wildcards.series].values())[0],
+        min_detection = 0.5,
+        n_top = 24
+    script:
+        "scripts/plot_mirna_vs_age.py"
+
+
+# ---- 4. Age models on the controls ----
+
+# 80/20 train/test split (the test set is called holdout), stratified by control group and
+# decade of age. Tables: Sample, Age, Sex, miRNAs
+rule split_controls:
+    input:
+        expression = "data/{series}/{cohort}/expression.tsv",
+        metadata = "data/{series}/{cohort}/metadata.tsv"
+    output:
+        train = "data/{series}/{cohort}/train.tsv",
+        holdout = "data/{series}/{cohort}/holdout.tsv"
+    params:
+        holdout_fraction = 0.2,
+        seed = 42
+    script:
+        "scripts/split_holdout.py"
+
+
+# Per-group z-scoring as in the miRNATissueAtlas pipeline: each miRNA is standardised within its
+# control group with the group's training mean and SD; the test set uses the same training stats
+rule zscore_controls:
+    input:
+        train = "data/{series}/controls/train.tsv",
+        holdout = "data/{series}/controls/holdout.tsv",
+        metadata = "data/{series}/controls/metadata.tsv"
+    output:
+        train = "data/{series}/controls_zscored/train.tsv",
+        holdout = "data/{series}/controls_zscored/holdout.tsv",
+        metadata = "data/{series}/controls_zscored/metadata.tsv"
+    script:
+        "scripts/zscore.py"
+
+
+# The z-scored controls with the cohort (control group) as 0/1 features, which the models always
+# keep; tests whether the cohort, whose offsets the z-scoring removed, improves the models
+rule add_cohort_features:
+    input:
+        train = "data/{series}/controls_zscored/train.tsv",
+        holdout = "data/{series}/controls_zscored/holdout.tsv",
+        metadata = "data/{series}/controls_zscored/metadata.tsv"
+    output:
+        train = "data/{series}/controls_zscored_cohort/train.tsv",
+        holdout = "data/{series}/controls_zscored_cohort/holdout.tsv",
+        metadata = "data/{series}/controls_zscored_cohort/metadata.tsv"
+    params:
+        cohort_order = lambda wildcards: list(CONTROLS[wildcards.series].values())[0]
+    script:
+        "scripts/add_cohort_features.py"
+
+
+# StandardScaler -> SelectKBest(f_regression) -> LinearRegression; the number of miRNAs (k) is
+# chosen by 5-fold CV on the training set, then the model is evaluated on the test set, overall
+# and within control groups
+rule linear_regression:
+    input:
+        train = "data/{series}/{dataset}/train.tsv",
+        holdout = "data/{series}/{dataset}/holdout.tsv",
+        metadata = "data/{series}/{dataset}/metadata.tsv"
+    output:
+        model = "models/{series}/{dataset}/linear_regression.pkl",
+        evaluation = "models/{series}/{dataset}/linear_regression_eval.txt",
+        selected_features = "models/{series}/{dataset}/linear_regression_features.tsv",
+        predictions = "models/{series}/{dataset}/linear_regression_holdout_predictions.tsv",
+        cv_plot = "figures/{series}/{dataset}/linear_regression_cv_prediction.svg",
+        holdout_plot = "figures/{series}/{dataset}/linear_regression_holdout_prediction.svg"
+    params:
+        group = lambda wildcards: f"{wildcards.series} {DATASET_LABELS[wildcards.dataset]}",
+        k_values = K_VALUES
+    script:
+        "scripts/linear_regression.py"
+
+
+# StandardScaler -> SelectKBest(f_regression) -> SVR; k and the SVR settings (kernel, C, gamma,
+# epsilon; same grid as the miRNATissueAtlas pipeline) are chosen by 5-fold CV on the training
+# set, then the model is evaluated on the test set, overall and within control groups
+rule svr:
+    input:
+        train = "data/{series}/{dataset}/train.tsv",
+        holdout = "data/{series}/{dataset}/holdout.tsv",
+        metadata = "data/{series}/{dataset}/metadata.tsv"
+    output:
+        model = "models/{series}/{dataset}/svr.pkl",
+        evaluation = "models/{series}/{dataset}/svr_eval.txt",
+        selected_features = "models/{series}/{dataset}/svr_features.tsv",
+        predictions = "models/{series}/{dataset}/svr_holdout_predictions.tsv",
+        cv_plot = "figures/{series}/{dataset}/svr_cv_prediction.svg",
+        holdout_plot = "figures/{series}/{dataset}/svr_holdout_prediction.svg"
+    params:
+        group = lambda wildcards: f"{wildcards.series} {DATASET_LABELS[wildcards.dataset]}",
+        k_values = K_VALUES
+    threads: workflow.cores
+    script:
+        "scripts/svr.py"
+
+
+# ---- 5. Age models on the cancer samples ----
+
+# Cancer samples of a series (CANCERS): known age and sex, all ages, unique profiles
+rule build_cancer:
+    input:
+        expression = "data/{series}/expression.tsv",
+        metadata = "data/{series}/metadata.tsv",
+        floors = "data/{series}/undetected_floors.tsv"
+    output:
+        expression = "data/{series}/cancer/expression.tsv",
+        metadata = "data/{series}/cancer/metadata.tsv"
+    params:
+        groups = lambda wildcards: CANCERS[wildcards.series],
+        age_range = None
+    script:
+        "scripts/build_controls.py"
+
+
+# The SVR trained on a controls dataset, applied to all cancer samples; for the z-scored
+# dataset the samples are z-scored within their own cancer type (scripts/apply_to_cancer.py)
+rule svr_cancer:
+    input:
+        model = "models/{series}/{dataset}/svr.pkl",
+        expression = "data/{series}/cancer/expression.tsv",
+        metadata = "data/{series}/cancer/metadata.tsv"
+    output:
+        evaluation = "models/{series}/{dataset}/svr_cancer_eval.txt",
+        predictions = "models/{series}/{dataset}/svr_cancer_predictions.tsv",
+        plot = "figures/{series}/{dataset}/svr_cancer_prediction.svg"
+    params:
+        zscore = lambda wildcards: wildcards.dataset == "controls_zscored",
+        train_age_range = lambda wildcards: (CONTROLS_AGE_RANGE if wildcards.dataset.startswith("controls")
+                                             else COHORTS[wildcards.dataset][1]),
+        label = lambda wildcards: f"SVR ({wildcards.series} {DATASET_LABELS[wildcards.dataset]}) - cancer samples"
+    script:
+        "scripts/apply_to_cancer.py"

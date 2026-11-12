@@ -1,11 +1,11 @@
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import joblib
+from scipy.stats import loguniform, randint, uniform
 from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import HistGradientBoostingRegressor
 from sklearn.metrics import mean_absolute_error, r2_score, root_mean_squared_error, median_absolute_error
-from sklearn.model_selection import GridSearchCV, KFold
+from sklearn.model_selection import GridSearchCV, KFold, RandomizedSearchCV
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, PowerTransformer
 from sklearn.feature_selection import SelectKBest, f_regression
@@ -67,31 +67,37 @@ def main():
         steps=[
             ("preprocess", preprocessor),
             ("feature_selection", SelectKBest(score_func=f_regression)),
-            ("model", HistGradientBoostingRegressor(random_state=42)),
+            ("model", HistGradientBoostingRegressor(
+                max_iter=1000,
+                early_stopping=True,
+                validation_fraction=0.15,
+                n_iter_no_change=30,
+                random_state=42)),
         ]
     )
 
-    param_grid = {
-        "feature_selection__k": ['all'],
-        "model__max_iter": [1000],
-        "model__learning_rate": [0.05],
-        "model__max_leaf_nodes": [31], 
-        "model__min_samples_leaf": [2],
-        "model__l2_regularization": [0.1],
-        "model__loss": ["absolute_error"],
-        # "model__max_bins": [127, 255],
-        "model__max_depth": [8]
+    param_distributions = {
+        "feature_selection__k": [50, 100, 200, 'all'],
+        "model__learning_rate": loguniform(0.01, 0.2),
+        "model__max_leaf_nodes": randint(7, 32),
+        "model__max_features": uniform(0.3, 0.7),
+        "model__min_samples_leaf": randint(10, 51),
+        "model__l2_regularization": loguniform(1e-3, 10),
+        "model__loss": ["absolute_error", "squared_error"],
+        "model__max_depth": [3, 4, 5, 6, None]
     }
 
     cv = KFold(n_splits=5, shuffle=True, random_state=42)
-    search = GridSearchCV(
+    search = RandomizedSearchCV(
         estimator=model,
-        param_grid=param_grid,
-        scoring=balanced_mae_scorer,
+        param_distributions=param_distributions,
+        n_iter=150,
+        scoring="neg_mean_absolute_error",
         cv=cv,
         n_jobs=-1,
         refit=True,
         verbose=1,
+        random_state=42
     )
 
     # search.fit(X, y, model__sample_weight=sample_weights)
@@ -110,16 +116,6 @@ def main():
     print("Best params:", search.best_params_)
     print("Best CV balanced MAE:", -search.best_score_)
 
-    y_pred_cv = cross_val_predict(best_model, X, y, cv=cv)
-    plt.figure(figsize=(6, 6))
-    plt.scatter(y, y_pred_cv, alpha=0.7)
-    plt.plot([y.min(), y.max()], [y.min(), y.max()], linestyle="--", color="darkorange")
-    plt.xlabel("Actual Age")
-    plt.ylabel("Predicted Age")
-    plt.title("HistGradientBoostingRegressor - CV predictions")
-    plt.tight_layout()
-    plt.savefig("figures/boosting_tuned_cv_prediction.svg")
-    plt.close()
 
     test_data = pd.read_csv(TEST_DATA_PATH, sep="\t").set_index("Sample")
     X_test = test_data[to_keep].drop(columns=["Age"])

@@ -1,0 +1,5 @@
+comparison	case	reference	n_case	n_reference	age_range	n_tested	significant	up	down	bonferroni	fdr_only	median_abs_log2FC
+gastric_vs_noncancer	Gastric cancer	Non-cancer 1-3	25	932	42-84	707	255	113	142	167	372	0.7539703301824406
+gastric_vs_noncancer1	Gastric cancer	Non-cancer 1	25	327	42-84	583	74	48	26	31	117	0.5152263503532732
+batch_control	Non-cancer 2+3	Non-cancer 1	614	335	31-85	737	329	190	139	561	647	0.917199212065476
+gastric_vs_other_cancers	Gastric cancer	Other panel cancers	25	272	42-84	620	13	11	2	4	15	0.3480474442324841

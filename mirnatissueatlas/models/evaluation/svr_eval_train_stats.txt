@@ -1,0 +1,5 @@
+Best Params: {'feature_selection__k': 'all', 'model__C': 1000, 'model__epsilon': 1.0, 'model__gamma': 0.0003, 'model__kernel': 'rbf'}, Best CV balanced MAE: 5.765947691771412 
+Test R2: 0.5537276672638463, 
+ Test MAE: 4.675102977915523, 
+ Test RMSE: 6.105268500657778, 
+ Test balanced MAE: 5.0148723945118725
