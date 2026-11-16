@@ -12,3 +12,5 @@ deconvolution/
 .snakemake
 *.png
 *.svg
+geo_serum/
+sdai_vs_healthy/
